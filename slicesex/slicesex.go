@@ -1,10 +1,22 @@
 package slicesex
 
-import "slices"
+import (
+	"slices"
+
+	"golang.org/x/exp/constraints"
+)
 
 func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	i, _ := slices.BinarySearchFunc(x, item, cmp)
 	return slices.Insert(x, i, item)
+}
+
+func Accumulate[S ~[]E, E constraints.Integer | constraints.Float | constraints.Complex](x S) E {
+	var r E
+	for _, t := range x {
+		r += t
+	}
+	return r
 }
 
 func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
