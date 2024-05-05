@@ -14,7 +14,7 @@ type RGBA color.RGBA
 func (c *RGBA) UnmarshalYAML(value *yaml.Node) error {
 	switch {
 	case value.Tag == "!!str":
-		err := ParseHexColorTo(value.Value, c)
+		err := ParseHexColorTo(value.Value, (*color.RGBA)(c))
 		if err != nil {
 			return err
 		}
@@ -23,12 +23,12 @@ func (c *RGBA) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func ParseHexColor(s string) (c RGBA, err error) {
+func ParseHexColor(s string) (c color.RGBA, err error) {
 	err = ParseHexColorTo(s, &c)
 	return
 }
 
-func ParseHexColorTo(s string, c *RGBA) (err error) {
+func ParseHexColorTo(s string, c *color.RGBA) (err error) {
 	c.A = 0xff
 
 	if s[0] != '#' {
