@@ -12,11 +12,7 @@ func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 }
 
 func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
-	result := make([]V, len(x))
-	for i, t := range x {
-		result[i] = fn(t)
-	}
-	return result
+	return xiter.CollectSize(xiter.Map(xiter.OfSlice(x), fn), len(x))
 }
 
 func Range(start int, count int) xiter.Seq[int] {
