@@ -11,6 +11,10 @@ func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	return slices.Insert(x, i, item)
 }
 
+func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
+	return xiter.Any(xiter.OfSlice(x), fn)
+}
+
 func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(xiter.OfSlice(x), fn), len(x))
 }
