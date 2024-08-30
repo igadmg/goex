@@ -31,3 +31,11 @@ func ToMap[T any, K comparable](src []T, key func(T) K) map[K]T {
 	}
 	return result
 }
+
+func ToMapPtr[T any, K comparable](src []T, key func(*T) K) map[K]*T {
+	var result = make(map[K]*T)
+	for i := range src {
+		result[key(&src[i])] = &src[i]
+	}
+	return result
+}
