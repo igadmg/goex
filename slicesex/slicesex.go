@@ -23,3 +23,11 @@ func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 func Range(start int, count int) iter.Seq[int] {
 	return xiter.Limit(xiter.Generate(start, 1), count)
 }
+
+func ToMap[T any, K comparable](src []T, key func(T) K) map[K]T {
+	var result = make(map[K]T)
+	for _, v := range src {
+		result[key(v)] = v
+	}
+	return result
+}
