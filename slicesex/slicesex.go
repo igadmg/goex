@@ -7,6 +7,14 @@ import (
 	"github.com/DeedleFake/xiter"
 )
 
+func Reserve[T any](x []T, size int) []T {
+	if len(x) < size {
+		return x[:size]
+	}
+
+	return x
+}
+
 func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	i, _ := slices.BinarySearchFunc(x, item, cmp)
 	return slices.Insert(x, i, item)
