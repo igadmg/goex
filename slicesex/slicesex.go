@@ -9,7 +9,7 @@ import (
 
 func Reserve[T any](x []T, size int) []T {
 	if len(x) < size {
-		return x[:size]
+		x = append(x, make([]T, size-len(x))...)
 	}
 
 	return x
