@@ -62,7 +62,7 @@ func FuncDeclRecvType(decl *ast.FuncDecl) (ast.Expr, error) {
 }
 
 func FuncDeclParams(decl *ast.FuncDecl) ([]*ast.Field, error) {
-	if decl.Type.Params != nil && len(decl.Type.Params.List) == 1 {
+	if decl.Type.Params != nil {
 		return decl.Type.Params.List, nil
 	}
 
