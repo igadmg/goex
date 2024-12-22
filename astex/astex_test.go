@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExprGetTypeName(t *testing.T) {
+func TestExprGetFullTypeName(t *testing.T) {
 	tests := []struct {
 		expr     string
 		expected string
@@ -25,7 +25,7 @@ func TestExprGetTypeName(t *testing.T) {
 		expr, err := parser.ParseExpr(test.expr)
 		assert.NoError(t, err)
 
-		result := ExprGetTypeName(expr)
+		result := ExprGetFullTypeName(expr)
 		assert.Equal(t, test.expected, result)
 	}
 }

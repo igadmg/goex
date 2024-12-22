@@ -5,25 +5,44 @@ import (
 	"go/ast"
 )
 
-func ExprGetTypeName(fieldType ast.Expr) string {
+func ExprGetFullTypeName(fieldType ast.Expr) string {
 	switch ftype := fieldType.(type) {
 	case *ast.Ident:
 		return ftype.Name
 	case *ast.StarExpr:
-		return ExprGetTypeName(ftype.X)
+		return ExprGetFullTypeName(ftype.X)
 	case *ast.ArrayType:
-		return ExprGetTypeName(ftype.Elt)
+		return ExprGetFullTypeName(ftype.Elt)
 	case *ast.SelectorExpr:
-		x := ExprGetTypeName(ftype.X)
-		sel := ExprGetTypeName(ftype.Sel)
+		x := ExprGetFullTypeName(ftype.X)
+		sel := ExprGetFullTypeName(ftype.Sel)
 		if len(x) != 0 {
 			return x + "." + sel
 		}
 		return sel
 	case *ast.IndexExpr:
-		x := ExprGetTypeName(ftype.X)
-		index := ExprGetTypeName(ftype.Index)
+		x := ExprGetFullTypeName(ftype.X)
+		index := ExprGetFullTypeName(ftype.Index)
 		return x + "[" + index + "]"
+	}
+
+	return ""
+}
+
+func ExprGetCallTypeName(fieldType ast.Expr) string {
+	switch ftype := fieldType.(type) {
+	case *ast.Ident:
+		return ftype.Name
+	case *ast.StarExpr:
+		return ExprGetFullTypeName(ftype.X)
+	case *ast.ArrayType:
+		return ExprGetFullTypeName(ftype.Elt)
+	case *ast.SelectorExpr:
+		sel := ExprGetCallTypeName(ftype.Sel)
+		return sel
+	case *ast.IndexExpr:
+		x := ExprGetCallTypeName(ftype.X)
+		return x
 	}
 
 	return ""
@@ -34,19 +53,39 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, error) {
 	case *ast.Ident:
 		return ftype.Name, nil
 	case *ast.StarExpr:
-		return "*" + ExprGetTypeName(ftype.X), nil
+		x, err := GetFieldDeclTypeName(ftype.X)
+		if err != nil {
+			return "", err
+		}
+		return "*" + x, nil
 	case *ast.ArrayType:
-		return "[]" + ExprGetTypeName(ftype.Elt), nil
+		elt, err := GetFieldDeclTypeName(ftype.Elt)
+		if err != nil {
+			return "", err
+		}
+		return "[]" + elt, nil
 	case *ast.SelectorExpr:
-		x := ExprGetTypeName(ftype.X)
-		sel := ExprGetTypeName(ftype.Sel)
+		x, err := GetFieldDeclTypeName(ftype.X)
+		if err != nil {
+			return "", err
+		}
+		sel, err := GetFieldDeclTypeName(ftype.Sel)
+		if err != nil {
+			return "", err
+		}
 		if len(x) != 0 {
 			return x + "." + sel, nil
 		}
 		return sel, nil
 	case *ast.IndexExpr:
-		x := ExprGetTypeName(ftype.X)
-		index := ExprGetTypeName(ftype.Index)
+		x, err := GetFieldDeclTypeName(ftype.X)
+		if err != nil {
+			return "", err
+		}
+		index, err := GetFieldDeclTypeName(ftype.Index)
+		if err != nil {
+			return "", err
+		}
 		return x + "[" + index + "]", nil
 	}
 
