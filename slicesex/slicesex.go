@@ -20,6 +20,26 @@ func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	return slices.Insert(x, i, item)
 }
 
+func BinarySearchTake[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
+	i, _ := slices.BinarySearchFunc(x, item, cmp)
+	return slices.Delete(x, i, 1)
+}
+
+func TakeFunc[S ~[]E, E any](x S, cmp func(E) bool) (s S, e E, ok bool) {
+	i := slices.IndexFunc(x, cmp)
+	if i < 0 {
+		ok = false
+		s = x
+
+		return
+	}
+	e = x[i]
+	s = slices.Delete(x, i, 1)
+	ok = true
+
+	return
+}
+
 func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
 	return xiter.Any(slices.Values(x), fn)
 }
