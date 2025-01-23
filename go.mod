@@ -2,12 +2,12 @@ module github.com/igadmg/goex
 
 go 1.23.0
 
-replace github.com/DeedleFake/xiter => ../xiter
+replace deedles.dev/xiter => ../xiter
 
 require gopkg.in/yaml.v3 v3.0.1
 
 require (
-	github.com/DeedleFake/xiter v0.0.0-20240215152241-9fc873aaff80
+	deedles.dev/xiter v0.0.0-20240215152241-9fc873aaff80
 	github.com/stretchr/testify v1.10.0
 )
 

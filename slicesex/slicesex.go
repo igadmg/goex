@@ -4,7 +4,7 @@ import (
 	"iter"
 	"slices"
 
-	"github.com/DeedleFake/xiter"
+	"deedles.dev/xiter"
 )
 
 func Reserve[T any](x []T, size int) []T {
