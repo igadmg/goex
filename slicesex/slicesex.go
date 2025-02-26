@@ -48,6 +48,10 @@ func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(slices.Values(x), fn), len(x))
 }
 
+func RepeatFunc[E any](count int, fn func(int) E) []E {
+	return xiter.CollectSize(xiter.Map(Range(0, count), fn), count)
+}
+
 func Range(start int, count int) iter.Seq[int] {
 	return xiter.Limit(xiter.Generate(start, 1), count)
 }
