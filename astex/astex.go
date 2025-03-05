@@ -1,109 +1,98 @@
 package astex
 
 import (
-	"fmt"
 	"go/ast"
 )
 
-func ExprGetFullTypeName(fieldType ast.Expr) string {
+func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
 	switch ftype := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name
+		return ftype.Name, true
 	case *ast.StarExpr:
 		return ExprGetFullTypeName(ftype.X)
 	case *ast.ArrayType:
 		return ExprGetFullTypeName(ftype.Elt)
 	case *ast.SelectorExpr:
-		x := ExprGetFullTypeName(ftype.X)
-		sel := ExprGetFullTypeName(ftype.Sel)
-		if len(x) != 0 {
-			return x + "." + sel
+		if x, ok := ExprGetFullTypeName(ftype.X); ok {
+			if sel, ok := ExprGetFullTypeName(ftype.Sel); ok {
+				if len(x) != 0 {
+					return x + "." + sel, true
+				}
+				return sel, true
+			}
 		}
-		return sel
 	case *ast.IndexExpr:
-		x := ExprGetFullTypeName(ftype.X)
-		index := ExprGetFullTypeName(ftype.Index)
-		return x + "[" + index + "]"
+		if x, ok := ExprGetFullTypeName(ftype.X); ok {
+			if index, ok := ExprGetFullTypeName(ftype.Index); ok {
+				return x + "[" + index + "]", true
+			}
+		}
 	}
 
-	return ""
+	return "", true
 }
 
-func ExprGetCallTypeName(fieldType ast.Expr) string {
+func ExprGetCallTypeName(fieldType ast.Expr) (string, bool) {
 	switch ftype := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name
+		return ftype.Name, true
 	case *ast.StarExpr:
 		return ExprGetFullTypeName(ftype.X)
 	case *ast.ArrayType:
 		return ExprGetFullTypeName(ftype.Elt)
 	case *ast.SelectorExpr:
-		sel := ExprGetCallTypeName(ftype.Sel)
-		return sel
+		return ExprGetCallTypeName(ftype.Sel)
 	case *ast.IndexExpr:
-		x := ExprGetCallTypeName(ftype.X)
-		return x
+		return ExprGetCallTypeName(ftype.X)
 	}
 
-	return ""
+	return "", false
 }
 
-func GetFieldDeclTypeName(fieldType ast.Expr) (string, error) {
+func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 	switch ftype := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name, nil
+		return ftype.Name, true
 	case *ast.StarExpr:
-		x, err := GetFieldDeclTypeName(ftype.X)
-		if err != nil {
-			return "", err
+		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
+			return "*" + x, true
 		}
-		return "*" + x, nil
 	case *ast.ArrayType:
-		elt, err := GetFieldDeclTypeName(ftype.Elt)
-		if err != nil {
-			return "", err
+		if elt, ok := GetFieldDeclTypeName(ftype.Elt); ok {
+			return "[]" + elt, true
 		}
-		return "[]" + elt, nil
 	case *ast.SelectorExpr:
-		x, err := GetFieldDeclTypeName(ftype.X)
-		if err != nil {
-			return "", err
+		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
+			if sel, ok := GetFieldDeclTypeName(ftype.Sel); ok {
+				if len(x) != 0 {
+					return x + "." + sel, true
+				}
+				return sel, true
+			}
 		}
-		sel, err := GetFieldDeclTypeName(ftype.Sel)
-		if err != nil {
-			return "", err
-		}
-		if len(x) != 0 {
-			return x + "." + sel, nil
-		}
-		return sel, nil
 	case *ast.IndexExpr:
-		x, err := GetFieldDeclTypeName(ftype.X)
-		if err != nil {
-			return "", err
+		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
+			if index, ok := GetFieldDeclTypeName(ftype.Index); ok {
+				return x + "[" + index + "]", true
+			}
 		}
-		index, err := GetFieldDeclTypeName(ftype.Index)
-		if err != nil {
-			return "", err
-		}
-		return x + "[" + index + "]", nil
 	}
 
-	return "", fmt.Errorf("unknown parameter type")
+	return "", false
 }
 
-func FuncDeclRecvType(decl *ast.FuncDecl) (ast.Expr, error) {
+func FuncDeclRecvType(decl *ast.FuncDecl) (ast.Expr, bool) {
 	if decl.Recv != nil && len(decl.Recv.List) == 1 {
-		return decl.Recv.List[0].Type, nil
+		return decl.Recv.List[0].Type, true
 	}
 
-	return nil, fmt.Errorf("recv type not found")
+	return nil, false
 }
 
-func FuncDeclParams(decl *ast.FuncDecl) ([]*ast.Field, error) {
+func FuncDeclParams(decl *ast.FuncDecl) ([]*ast.Field, bool) {
 	if decl.Type.Params != nil {
-		return decl.Type.Params.List, nil
+		return decl.Type.Params.List, true
 	}
 
-	return []*ast.Field{}, nil
+	return []*ast.Field{}, false
 }

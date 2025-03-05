@@ -25,7 +25,8 @@ func TestExprGetFullTypeName(t *testing.T) {
 		expr, err := parser.ParseExpr(test.expr)
 		assert.NoError(t, err)
 
-		result := ExprGetFullTypeName(expr)
+		result, ok := ExprGetFullTypeName(expr)
+		assert.Equal(t, ok, true)
 		assert.Equal(t, test.expected, result)
 	}
 }
@@ -46,8 +47,8 @@ func TestGetFieldDeclTypeName(t *testing.T) {
 		expr, err := parser.ParseExpr(test.expr)
 		assert.NoError(t, err)
 
-		result, err := GetFieldDeclTypeName(expr)
-		assert.NoError(t, err)
+		result, ok := GetFieldDeclTypeName(expr)
+		assert.Equal(t, ok, true)
 		assert.Equal(t, test.expected, result)
 	}
 }
@@ -63,8 +64,8 @@ func TestFuncDeclRecvType(t *testing.T) {
 
 	for _, decl := range node.Decls {
 		if funcDecl, ok := decl.(*ast.FuncDecl); ok {
-			recvType, err := FuncDeclRecvType(funcDecl)
-			assert.NoError(t, err)
+			recvType, ok := FuncDeclRecvType(funcDecl)
+			assert.Equal(t, ok, true)
 			assert.NotNil(t, recvType)
 		}
 	}
@@ -81,8 +82,8 @@ func TestFuncDeclParams(t *testing.T) {
 
 	for _, decl := range node.Decls {
 		if funcDecl, ok := decl.(*ast.FuncDecl); ok {
-			params, err := FuncDeclParams(funcDecl)
-			assert.NoError(t, err)
+			params, ok := FuncDeclParams(funcDecl)
+			assert.Equal(t, ok, true)
 			assert.Len(t, params, 2)
 		}
 	}
