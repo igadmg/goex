@@ -1,6 +1,9 @@
 package osex
 
-import "os"
+import (
+	"log"
+	"os"
+)
 
 func CopyFile(source, destination string) error {
 	r, err := os.Open(source)
@@ -17,4 +20,13 @@ func CopyFile(source, destination string) error {
 
 	w.ReadFrom(r)
 	return nil
+}
+
+// isDirectory reports whether the named file is a directory.
+func IsDirectory(name string) bool {
+	info, err := os.Stat(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return info.IsDir()
 }
