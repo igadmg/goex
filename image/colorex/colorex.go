@@ -12,12 +12,14 @@ var errInvalidFormat = errors.New("invalid format")
 type RGBA color.RGBA
 
 func (c *RGBA) UnmarshalYAML(value *yaml.Node) error {
-	switch {
-	case value.Tag == "!!str":
-		err := ParseHexColorTo(value.Value, (*color.RGBA)(c))
-		if err != nil {
-			return err
-		}
+	var str string
+	if err := value.Decode(&str); err != nil {
+		return err
+	}
+
+	err := ParseHexColorTo(value.Value, (*color.RGBA)(c))
+	if err != nil {
+		return err
 	}
 
 	return nil
