@@ -11,6 +11,13 @@ var errInvalidFormat = errors.New("invalid format")
 
 type RGBA color.RGBA
 
+func (c RGBA) IsZero() bool {
+	return c.R == 0 &&
+		c.G == 0 &&
+		c.B == 0 &&
+		c.A == 0
+}
+
 func (c *RGBA) UnmarshalYAML(value *yaml.Node) error {
 	var str string
 	if err := value.Decode(&str); err != nil {

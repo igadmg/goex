@@ -7,9 +7,9 @@ import (
 	"deedles.dev/xiter"
 )
 
-func Reserve[T any](x []T, size int) []T {
+func Reserve[S ~[]E, E any](x S, size int) S {
 	if len(x) < size {
-		x = append(x, make([]T, size-len(x))...)
+		x = append(x, make(S, size-len(x))...)
 	}
 
 	return x
@@ -70,4 +70,24 @@ func ToMapPtr[T any, K comparable](src []T, key func(*T) K) map[K]*T {
 		result[key(&src[i])] = &src[i]
 	}
 	return result
+}
+
+func Set[S ~[]E, E any](x S, index int, e E) S {
+	x = Reserve(x, index+1)
+	x[index] = e
+	return x
+}
+
+func RemoveSwapback[S ~[]E, E any](x S, index int) (S, E) {
+	var e E
+
+	if index >= len(x) {
+		return x, e
+	}
+
+	e = x[index]
+	x[index] = x[len(x)-1]
+	x = x[:len(x)-1]
+
+	return x, e
 }
