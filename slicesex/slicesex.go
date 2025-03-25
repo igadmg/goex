@@ -9,7 +9,11 @@ import (
 
 func Reserve[S ~[]E, E any](x S, size int) S {
 	if len(x) < size {
-		x = append(x, make(S, size-len(x))...)
+		if size > cap(x) {
+			x = slices.Grow(x, size)
+		}
+
+		x = x[0:size]
 	}
 
 	return x
