@@ -14,3 +14,10 @@ func Should[T any](v T, e error) T {
 	}
 	return v
 }
+
+func MustHave[T any](v T, e bool) T {
+	if !e {
+		panic(e)
+	}
+	return v
+}
