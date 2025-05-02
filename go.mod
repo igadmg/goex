@@ -2,8 +2,6 @@ module github.com/igadmg/goex
 
 go 1.24
 
-replace deedles.dev/xiter => ../xiter
-
 require (
 	deedles.dev/xiter v0.2.1
 	github.com/stretchr/testify v1.10.0
