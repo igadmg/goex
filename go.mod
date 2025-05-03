@@ -1,6 +1,6 @@
 module github.com/igadmg/goex
 
-go 1.24
+go 1.24.2
 
 require (
 	deedles.dev/xiter v0.2.1
