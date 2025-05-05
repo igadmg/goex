@@ -16,7 +16,7 @@ func Reserve[S ~[]E, E any](x S, size int) S {
 		x = x[0:size]
 	}
 
-	return x
+	return x[0:size]
 }
 
 func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
