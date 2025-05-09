@@ -48,6 +48,23 @@ func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
 	return xiter.Any(slices.Values(x), fn)
 }
 
+func LeftJoin[S ~[]E, E, V any](x S, s iter.Seq[V]) iter.Seq2[E, V] {
+	return func(yield func(E, V) bool) {
+		i := 0
+		for si := range s {
+			if i == len(x) {
+				return
+			}
+
+			if !yield(x[i], si) {
+				return
+			}
+
+			i++
+		}
+	}
+}
+
 func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(slices.Values(x), fn), len(x))
 }
