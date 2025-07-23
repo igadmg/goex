@@ -44,6 +44,7 @@ func TakeFunc[S ~[]E, E any](x S, cmp func(E) bool) (s S, e E, ok bool) {
 	return
 }
 
+// Special version for arrray iteration
 func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
 	return xiter.Any(slices.Values(x), fn)
 }
