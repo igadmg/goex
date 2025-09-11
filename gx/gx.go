@@ -21,3 +21,11 @@ func MustHave[T any](v T, e bool) T {
 	}
 	return v
 }
+
+func ShouldOk[T any](v T, ok bool) T {
+	if ok {
+		return v
+	}
+	var t T
+	return t
+}

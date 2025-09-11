@@ -113,3 +113,14 @@ func RemoveSwapback[S ~[]E, E any](x S, index int) (S, E) {
 
 	return x, e
 }
+
+//func CastSeq[T any, S ~[]E, E any](x S) iter.Seq[T] {
+//	return func(yield func(T) bool) {
+//		for _, i := range x {
+//			if !yield(i.(T)) {
+//				return
+//			}
+//		}
+//	}
+//}
+//
