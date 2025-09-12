@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	deedles.dev/xiter v0.2.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
