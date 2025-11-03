@@ -1,5 +1,9 @@
 package goex
 
+import (
+	"iter"
+)
+
 type MapTree[K comparable, V any] map[K]any
 
 func (m MapTree[K, V]) Root() map[K]any {
@@ -37,14 +41,30 @@ func (m MapTree[K, V]) Contains(path ...K) (ok bool) {
 			_, ok = r[name]
 			return
 		} else {
-			r, ok = r[name].(MapTree[K, V])
+			r, ok = r.getNode(name)
 			if !ok {
-				return
+				return ok
 			}
 		}
 	}
 
 	return true // empty path is ture
+}
+
+func (m MapTree[K, V]) EnumObjects(path ...K) iter.Seq2[K, MapTree[K, V]] {
+	if o, ok := m.GetNode(path...); ok {
+		return func(yield func(K, MapTree[K, V]) bool) {
+			for name, v := range o.Root() {
+				if v, ok := m.toNode(v); ok {
+					if !yield(name, v) {
+						return
+					}
+				}
+			}
+		}
+	}
+
+	return func(yield func(K, MapTree[K, V]) bool) {}
 }
 
 func (m MapTree[K, V]) Get(path ...K) (v V, ok bool) {
@@ -62,7 +82,30 @@ func (m MapTree[K, V]) Get(path ...K) (v V, ok bool) {
 			ok = false
 			return
 		} else {
-			r, ok = r[name].(MapTree[K, V])
+			r, ok = r.getNode(name)
+			if !ok {
+				return
+			}
+		}
+	}
+
+	ok = false
+	return
+}
+
+func (m MapTree[K, V]) GetNode(path ...K) (v MapTree[K, V], ok bool) {
+	r := m
+	li := len(path) - 1
+	for i, name := range path {
+		if i == li {
+			if v, ok = r.getNode(name); ok {
+				return
+			}
+
+			ok = false
+			return
+		} else {
+			r, ok = r.getNode(name)
 			if !ok {
 				return
 			}
@@ -85,7 +128,7 @@ func (m MapTree[K, V]) GetAny(path ...K) (v any, ok bool) {
 			ok = false
 			return
 		} else {
-			r, ok = r[name].(MapTree[K, V])
+			r, ok = r.getNode(name)
 			if !ok {
 				return
 			}
@@ -146,4 +189,24 @@ func (m MapTree[K, V]) Merge(data MapTree[K, V]) (ok bool) {
 	}
 
 	return true
+}
+
+func (m MapTree[K, V]) getNode(key K) (r MapTree[K, V], ok bool) {
+	ar, ok := m[key]
+	if !ok {
+		return nil, false
+	}
+
+	return m.toNode(ar)
+}
+
+func (m MapTree[K, V]) toNode(v any) (r MapTree[K, V], ok bool) {
+	switch v := v.(type) {
+	case MapTree[K, V]:
+		return v, true
+	case map[K]any:
+		return MapTree[K, V](v), true
+	}
+
+	return nil, false
 }
