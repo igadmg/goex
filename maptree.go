@@ -73,6 +73,11 @@ func (m MapTree[K, V]) Get(path ...K) (v V, ok bool) {
 	for i, name := range path {
 		if i == li {
 			if av, ok := r[name]; ok {
+				if av == nil {
+					var v V
+					return v, ok
+				}
+
 				switch av := av.(type) {
 				case V:
 					return av, true
