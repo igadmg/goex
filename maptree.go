@@ -2,6 +2,18 @@ package goex
 
 type MapTree[K comparable, V any] map[K]any
 
+func (m MapTree[K, V]) Root() map[K]any {
+	return m
+}
+
+func (m MapTree[K, V]) IsEmpty() bool {
+	return len(m) == 0
+}
+
+//func (m MapTree[K, V]) AllAny() iter.Seq2[K, any] {
+//
+//}
+
 func (m MapTree[K, V]) Clone() any {
 	r := MapTree[K, V]{}
 
