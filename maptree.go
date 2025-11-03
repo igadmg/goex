@@ -139,7 +139,38 @@ func (m MapTree[K, V]) GetAny(path ...K) (v any, ok bool) {
 	return
 }
 
-func (m MapTree[K, V]) Set(v any, path ...K) (ok bool) {
+func (m MapTree[K, V]) Set(v V, path ...K) (ok bool) {
+	if len(path) == 0 {
+		return
+	}
+
+	r := m
+	li := len(path) - 1
+	for i, name := range path {
+		if i == li {
+			r[name] = v
+
+			return true
+		} else {
+			if ar, ok := r[name]; ok {
+				switch ar := ar.(type) {
+				case MapTree[K, V]:
+					r = ar
+				default:
+					return false // not a node can not traverse deeper
+				}
+			} else { // no node found, create new
+				n := MapTree[K, V]{}
+				r[name] = n
+				r = n
+			}
+		}
+	}
+
+	return false
+}
+
+func (m MapTree[K, V]) SetNode(v MapTree[K, V], path ...K) (ok bool) {
 	if len(path) == 0 {
 		return
 	}
