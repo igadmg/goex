@@ -82,7 +82,7 @@ func TestFuncDeclParams(t *testing.T) {
 
 	for _, decl := range node.Decls {
 		if funcDecl, ok := decl.(*ast.FuncDecl); ok {
-			params, ok := FuncDeclParams(funcDecl)
+			params := FuncDeclParamsSeq(funcDecl)
 			assert.Equal(t, ok, true)
 			assert.Len(t, params, 2)
 		}

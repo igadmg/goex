@@ -2,6 +2,7 @@ package astex
 
 import (
 	"go/ast"
+	"iter"
 )
 
 func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
@@ -89,10 +90,30 @@ func FuncDeclRecvType(decl *ast.FuncDecl) (ast.Expr, bool) {
 	return nil, false
 }
 
-func FuncDeclParams(decl *ast.FuncDecl) ([]*ast.Field, bool) {
+func FuncDeclParamsSeq(decl *ast.FuncDecl) iter.Seq[*ast.Field] {
 	if decl.Type.Params != nil {
-		return decl.Type.Params.List, true
+		return func(yield func(*ast.Field) bool) {
+			for _, f := range decl.Type.Params.List {
+				if !yield(f) {
+					return
+				}
+			}
+		}
 	}
 
-	return []*ast.Field{}, false
+	return func(yield func(*ast.Field) bool) {}
+}
+
+func FuncDeclResultsSeq(decl *ast.FuncDecl) iter.Seq[*ast.Field] {
+	if decl.Type.Results != nil {
+		return func(yield func(*ast.Field) bool) {
+			for _, f := range decl.Type.Results.List {
+				if !yield(f) {
+					return
+				}
+			}
+		}
+	}
+
+	return func(yield func(*ast.Field) bool) {}
 }

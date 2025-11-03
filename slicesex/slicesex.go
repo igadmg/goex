@@ -66,6 +66,10 @@ func LeftJoin[S ~[]E, E, V any](x S, s iter.Seq[V]) iter.Seq2[E, V] {
 	}
 }
 
+func Map[S ~[]E, E, V any](x S, fn func(E) V) iter.Seq[V] {
+	return xiter.Map(slices.Values(x), fn)
+}
+
 func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(slices.Values(x), fn), len(x))
 }
