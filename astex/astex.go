@@ -90,10 +90,10 @@ func FuncDeclRecvType(decl *ast.FuncDecl) (ast.Expr, bool) {
 	return nil, false
 }
 
-func FuncDeclParamsSeq(decl *ast.FuncDecl) iter.Seq[*ast.Field] {
-	if decl.Type.Params != nil {
+func FuncTypeParamsSeq(decl *ast.FuncType) iter.Seq[*ast.Field] {
+	if decl.Params != nil {
 		return func(yield func(*ast.Field) bool) {
-			for _, f := range decl.Type.Params.List {
+			for _, f := range decl.Params.List {
 				if !yield(f) {
 					return
 				}
@@ -104,10 +104,10 @@ func FuncDeclParamsSeq(decl *ast.FuncDecl) iter.Seq[*ast.Field] {
 	return func(yield func(*ast.Field) bool) {}
 }
 
-func FuncDeclResultsSeq(decl *ast.FuncDecl) iter.Seq[*ast.Field] {
-	if decl.Type.Results != nil {
+func FuncTypeResultsSeq(decl *ast.FuncType) iter.Seq[*ast.Field] {
+	if decl.Results != nil {
 		return func(yield func(*ast.Field) bool) {
-			for _, f := range decl.Type.Results.List {
+			for _, f := range decl.Results.List {
 				if !yield(f) {
 					return
 				}

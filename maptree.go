@@ -18,11 +18,13 @@ func (m MapTree[K, V]) IsEmpty() bool {
 //
 //}
 
-func (m MapTree[K, V]) Clone() any {
-	r := MapTree[K, V]{}
+func (m MapTree[K, V]) Clone_() (r MapTree[K, V]) {
+	r = MapTree[K, V]{}
 
 	for k, v := range m {
 		switch v := v.(type) {
+		case map[K]any:
+			r[k] = MapTree[K, V](v).Clone()
 		case Cloner:
 			r[k] = v.Clone()
 		default:
@@ -31,6 +33,10 @@ func (m MapTree[K, V]) Clone() any {
 	}
 
 	return r
+}
+
+func (m MapTree[K, V]) Clone() any {
+	return m.Clone_()
 }
 
 func (m MapTree[K, V]) Contains(path ...K) (ok bool) {
@@ -101,6 +107,9 @@ func (m MapTree[K, V]) Get(path ...K) (v V, ok bool) {
 func (m MapTree[K, V]) GetNode(path ...K) (v MapTree[K, V], ok bool) {
 	r := m
 	li := len(path) - 1
+	if li < 0 {
+		return m, true
+	}
 	for i, name := range path {
 		if i == li {
 			if v, ok = r.getNode(name); ok {
