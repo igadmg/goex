@@ -1,6 +1,7 @@
 package stringsex
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -24,7 +25,7 @@ func ProcessStringAny(input string, mapping map[string]any) (result string, ok b
 			return v
 		}
 
-		return ""
+		return fmt.Sprintf("%v", v)
 	}
 
 	// Функция замены
