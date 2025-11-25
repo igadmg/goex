@@ -1,5 +1,10 @@
 package mapsex
 
+import (
+	"maps"
+	"slices"
+)
+
 // Gets first element from map
 func First[K comparable, V any](m map[K]V) (k K, v V, ok bool) {
 	for k, v = range m {
@@ -21,6 +26,12 @@ func Only[K comparable, V any](m map[K]V) (k K, v V, ok bool) {
 	}
 
 	ok = false
+	return
+}
+
+func SortedValues[K comparable, V any](m map[K]V, less func(a, b V) int) (vals []V) {
+	vals = slices.Collect(maps.Values(m))
+	slices.SortFunc(vals, less)
 	return
 }
 
