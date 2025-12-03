@@ -6,16 +6,16 @@ import (
 )
 
 func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
-	switch ftype := fieldType.(type) {
+	switch fieldType := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name, true
+		return fieldType.Name, true
 	case *ast.StarExpr:
-		return ExprGetFullTypeName(ftype.X)
+		return ExprGetFullTypeName(fieldType.X)
 	case *ast.ArrayType:
-		return ExprGetFullTypeName(ftype.Elt)
+		return ExprGetFullTypeName(fieldType.Elt)
 	case *ast.SelectorExpr:
-		if x, ok := ExprGetFullTypeName(ftype.X); ok {
-			if sel, ok := ExprGetFullTypeName(ftype.Sel); ok {
+		if x, ok := ExprGetFullTypeName(fieldType.X); ok {
+			if sel, ok := ExprGetFullTypeName(fieldType.Sel); ok {
 				if len(x) != 0 {
 					return x + "." + sel, true
 				}
@@ -23,8 +23,8 @@ func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
 			}
 		}
 	case *ast.IndexExpr:
-		if x, ok := ExprGetFullTypeName(ftype.X); ok {
-			if index, ok := ExprGetFullTypeName(ftype.Index); ok {
+		if x, ok := ExprGetFullTypeName(fieldType.X); ok {
+			if index, ok := ExprGetFullTypeName(fieldType.Index); ok {
 				return x + "[" + index + "]", true
 			}
 		}
@@ -34,37 +34,37 @@ func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
 }
 
 func ExprGetCallTypeName(fieldType ast.Expr) (string, bool) {
-	switch ftype := fieldType.(type) {
+	switch fieldType := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name, true
+		return fieldType.Name, true
 	case *ast.StarExpr:
-		return ExprGetFullTypeName(ftype.X)
+		return ExprGetFullTypeName(fieldType.X)
 	case *ast.ArrayType:
-		return ExprGetFullTypeName(ftype.Elt)
+		return ExprGetFullTypeName(fieldType.Elt)
 	case *ast.SelectorExpr:
-		return ExprGetCallTypeName(ftype.Sel)
+		return ExprGetCallTypeName(fieldType.Sel)
 	case *ast.IndexExpr:
-		return ExprGetCallTypeName(ftype.X)
+		return ExprGetCallTypeName(fieldType.X)
 	}
 
 	return "", false
 }
 
 func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
-	switch ftype := fieldType.(type) {
+	switch fieldType := fieldType.(type) {
 	case *ast.Ident:
-		return ftype.Name, true
+		return fieldType.Name, true
 	case *ast.StarExpr:
-		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
+		if x, ok := GetFieldDeclTypeName(fieldType.X); ok {
 			return "*" + x, true
 		}
 	case *ast.ArrayType:
-		if elt, ok := GetFieldDeclTypeName(ftype.Elt); ok {
+		if elt, ok := GetFieldDeclTypeName(fieldType.Elt); ok {
 			return "[]" + elt, true
 		}
 	case *ast.SelectorExpr:
-		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
-			if sel, ok := GetFieldDeclTypeName(ftype.Sel); ok {
+		if x, ok := GetFieldDeclTypeName(fieldType.X); ok {
+			if sel, ok := GetFieldDeclTypeName(fieldType.Sel); ok {
 				if len(x) != 0 {
 					return x + "." + sel, true
 				}
@@ -72,8 +72,8 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 			}
 		}
 	case *ast.IndexExpr:
-		if x, ok := GetFieldDeclTypeName(ftype.X); ok {
-			if index, ok := GetFieldDeclTypeName(ftype.Index); ok {
+		if x, ok := GetFieldDeclTypeName(fieldType.X); ok {
+			if index, ok := GetFieldDeclTypeName(fieldType.Index); ok {
 				return x + "[" + index + "]", true
 			}
 		}
