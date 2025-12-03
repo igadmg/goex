@@ -5,6 +5,7 @@ go 1.25
 require (
 	deedles.dev/xiter v0.2.1
 	github.com/stretchr/testify v1.11.1
+	golang.org/x/exp v0.0.0-20251125195548-87e1e737ad39
 	gopkg.in/yaml.v3 v3.0.1
 )
 
