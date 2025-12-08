@@ -44,6 +44,24 @@ func TakeFunc[S ~[]E, E any](x S, cmp func(E) bool) (s S, e E, ok bool) {
 	return
 }
 
+func Step[S ~[]E, E any](x S, shift, period int) []E {
+	return slices.Collect(
+		xiter.Step(slices.Values(x), shift, period),
+	)
+}
+
+func Even[S ~[]E, E any](x S) []E {
+	return slices.Collect(
+		xiter.Even(slices.Values(x)),
+	)
+}
+
+func Odd[S ~[]E, E any](x S) []E {
+	return slices.Collect(
+		xiter.Odd(slices.Values(x)),
+	)
+}
+
 // Special version for arrray iteration
 func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
 	return xiter.Any(slices.Values(x), fn)
