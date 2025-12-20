@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -82,9 +83,10 @@ func TestFuncDeclParams(t *testing.T) {
 
 	for _, decl := range node.Decls {
 		if funcDecl, ok := decl.(*ast.FuncDecl); ok {
-			params := FuncTypeParamsSeq(funcDecl.Type)
-			assert.Equal(t, ok, true)
+			params := slices.Collect(FuncTypeParamsSeq(funcDecl.Type))
 			assert.Len(t, params, 2)
+		} else {
+			assert.Fail(t, "Failed to cast decl.(*ast.FuncDecl)")
 		}
 	}
 }
