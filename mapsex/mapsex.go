@@ -44,3 +44,27 @@ func SortedValues[K comparable, V any](m map[K]V, less func(a, b V) int) (vals [
 //		}
 //	}
 //}
+
+// Append value to multimap
+func AppendMultiMap[K comparable, V any](m map[K][]V, key K, value V) map[K][]V {
+	if a, ok := m[key]; ok {
+		m[key] = append(a, value)
+	} else {
+		m[key] = []V{value}
+	}
+
+	return m
+}
+
+// Delete value from multimap
+//func DeleteMultiMap[K comparable, V any](m map[K][]V, key K) (v V) {
+//	if a, ok := m[key]; ok {
+//		if len(a) > 1 {
+//			m[key] = a[1:]
+//		} else {
+//			delete(m, key)
+//		}
+//	}
+//
+//	return m
+//}
