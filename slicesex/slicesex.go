@@ -29,6 +29,7 @@ func BinarySearchTake[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	return slices.Delete(x, i, 1)
 }
 
+// finds first element for which cmp(e) reurns true, removes it from slice and returns.
 func TakeFunc[S ~[]E, E any](x S, cmp func(E) bool) (s S, e E, ok bool) {
 	i := slices.IndexFunc(x, cmp)
 	if i < 0 {
@@ -44,22 +45,35 @@ func TakeFunc[S ~[]E, E any](x S, cmp func(E) bool) (s S, e E, ok bool) {
 	return
 }
 
+// Step over slice from shift starting index with specific period.
 func Step[S ~[]E, E any](x S, shift, period int) []E {
 	return slices.Collect(
 		xiter.Step(slices.Values(x), shift, period),
 	)
 }
 
+// take every even element from slice
 func Even[S ~[]E, E any](x S) []E {
 	return slices.Collect(
 		xiter.Even(slices.Values(x)),
 	)
 }
 
+// take every odd element from slice
 func Odd[S ~[]E, E any](x S) []E {
 	return slices.Collect(
 		xiter.Odd(slices.Values(x)),
 	)
+}
+
+// take first element from slice
+func First[S ~[]E, E any](x S) E {
+	if len(x) > 0 {
+		return x[0]
+	}
+
+	var e E
+	return e
 }
 
 // Special version for arrray iteration
