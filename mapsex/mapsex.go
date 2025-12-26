@@ -1,9 +1,18 @@
 package mapsex
 
 import (
+	"iter"
 	"maps"
 	"slices"
 )
+
+func CollectSet[V comparable](seq iter.Seq[V]) map[V]struct{} {
+	m := map[V]struct{}{}
+	for k := range seq {
+		m[k] = struct{}{}
+	}
+	return m
+}
 
 // Gets first element from map
 func First[K comparable, V any](m map[K]V) (k K, v V, ok bool) {
