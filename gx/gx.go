@@ -15,14 +15,14 @@ func Should[T any](v T, e error) T {
 	return v
 }
 
-func MustHave[T any](v T, e bool) T {
-	if !e {
-		panic(e)
+func MustHave[T any](v T, ok bool) T {
+	if !ok {
+		panic(ok)
 	}
 	return v
 }
 
-func ShouldOk[T any](v T, ok bool) T {
+func ShouldHave[T any](v T, ok bool) T {
 	if ok {
 		return v
 	}
