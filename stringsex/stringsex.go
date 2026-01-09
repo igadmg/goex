@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+func SplitSeq(str string, sep string) iter.Seq[string] {
+	return slices.Values(strings.Split(str, sep))
+}
+
 func JoinSeq(x iter.Seq[string], sep string) string {
 	return strings.Join(slices.Collect(x), sep)
 }
