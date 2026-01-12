@@ -1,5 +1,9 @@
 package gx
 
+func Check[T any](v T, e error) (T, bool) {
+	return v, e == nil
+}
+
 func Must[T any](v T, e error) T {
 	if e != nil {
 		panic(e)
