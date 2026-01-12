@@ -1,5 +1,10 @@
 package gx
 
+func IsNil[T comparable](v T) bool {
+	var n T
+	return v == n
+}
+
 func Check[T any](v T, e error) (T, bool) {
 	return v, e == nil
 }

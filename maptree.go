@@ -4,6 +4,8 @@ import (
 	"iter"
 )
 
+// MapTree is a container with two type of node values - either V values or MapTree[K, V] values
+// so that is basically a tree structure built round golang map implementation
 type MapTree[K comparable, V any] map[K]any
 
 func (m MapTree[K, V]) Root() map[K]any {

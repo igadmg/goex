@@ -81,6 +81,10 @@ func Any[S ~[]E, E any](x S, fn func(E) bool) bool {
 	return xiter.Any(slices.Values(x), fn)
 }
 
+func All[S ~[]E, E any](x S, fn func(E) bool) bool {
+	return xiter.All(slices.Values(x), fn)
+}
+
 func LeftJoin[S ~[]E, E, V any](x S, s iter.Seq[V]) iter.Seq2[E, V] {
 	return func(yield func(E, V) bool) {
 		i := 0

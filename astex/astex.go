@@ -62,6 +62,12 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 		if elt, ok := GetFieldDeclTypeName(fieldType.Elt); ok {
 			return "[]" + elt, true
 		}
+	case *ast.MapType:
+		if key, ok := GetFieldDeclTypeName(fieldType.Key); ok {
+			if value, ok := GetFieldDeclTypeName(fieldType.Value); ok {
+				return "map[" + key + "]" + value, true
+			}
+		}
 	case *ast.SelectorExpr:
 		if x, ok := GetFieldDeclTypeName(fieldType.X); ok {
 			if sel, ok := GetFieldDeclTypeName(fieldType.Sel); ok {
