@@ -3,6 +3,10 @@ package astex
 import (
 	"go/ast"
 	"iter"
+
+	"github.com/igadmg/goex/gx"
+	"github.com/igadmg/goex/slicesex"
+	"github.com/igadmg/goex/stringsex"
 )
 
 func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
@@ -82,6 +86,14 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 			if index, ok := GetFieldDeclTypeName(fieldType.Index); ok {
 				return x + "[" + index + "]", true
 			}
+		}
+	case *ast.IndexListExpr:
+		if x, ok := GetFieldDeclTypeName(fieldType.X); ok {
+			return x + "[" +
+				stringsex.JoinSeq(slicesex.Map(fieldType.Indices, func(e ast.Expr) string {
+					return gx.ShouldHave(GetFieldDeclTypeName(e))
+				}), ", ") +
+				"]", true
 		}
 	}
 
