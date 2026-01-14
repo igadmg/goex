@@ -4,6 +4,8 @@ import (
 	"iter"
 	"maps"
 	"slices"
+
+	"deedles.dev/xiter"
 )
 
 func CollectSet[V comparable](seq iter.Seq[V]) map[V]struct{} {
@@ -42,6 +44,22 @@ func SortedValues[K comparable, V any](m map[K]V, less func(a, b V) int) (vals [
 	vals = slices.Collect(maps.Values(m))
 	slices.SortFunc(vals, less)
 	return
+}
+
+func IndexedSlice[V comparable](x []V) map[V]int {
+	fw := map[V]int{}
+	for i, f := range x {
+		fw[f] = i
+	}
+	return fw
+}
+
+func IndexedSeq[V comparable](x iter.Seq[V]) map[V]int {
+	fw := map[V]int{}
+	for i, f := range xiter.Enumerate(x) {
+		fw[f] = i
+	}
+	return fw
 }
 
 //func DeepCopy[M1 ~map[K]V, M2 ~map[K]V, K comparable, V any](dst M1, src M2) {

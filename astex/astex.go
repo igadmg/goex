@@ -9,6 +9,21 @@ import (
 	"github.com/igadmg/goex/stringsex"
 )
 
+func ExprTypeBaseFieldName(fieldType ast.Expr) (string, bool) {
+	switch fieldType := fieldType.(type) {
+	case *ast.Ident:
+		return fieldType.Name, true
+	case *ast.StarExpr:
+		return ExprTypeBaseFieldName(fieldType.X)
+	case *ast.SelectorExpr:
+		if sel, ok := ExprGetFullTypeName(fieldType.Sel); ok {
+			return sel, true
+		}
+	}
+
+	return "", false
+}
+
 func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
 	switch fieldType := fieldType.(type) {
 	case *ast.Ident:
@@ -34,7 +49,7 @@ func ExprGetFullTypeName(fieldType ast.Expr) (string, bool) {
 		}
 	}
 
-	return "", true
+	return "", false
 }
 
 func ExprGetCallTypeName(fieldType ast.Expr) (string, bool) {
