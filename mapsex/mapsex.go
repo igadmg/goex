@@ -8,6 +8,14 @@ import (
 	"deedles.dev/xiter"
 )
 
+func CollectSeq[K comparable, V any](seq iter.Seq[V], keyFn func(V) K) map[K]V {
+	r := map[K]V{}
+	for i := range seq {
+		r[keyFn(i)] = i
+	}
+	return r
+}
+
 func CollectSet[V comparable](seq iter.Seq[V]) map[V]struct{} {
 	m := map[V]struct{}{}
 	for k := range seq {
