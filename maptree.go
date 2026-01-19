@@ -128,6 +128,7 @@ func (m MapTree[K, V]) GetNode(path ...K) (v MapTree[K, V], ok bool) {
 		}
 	}
 
+	v = MapTree[K, V]{}
 	ok = false
 	return
 }
