@@ -3,18 +3,19 @@ package deque
 import (
 	"testing"
 
+	"github.com/igadmg/goex/cache"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMakeDeque(t *testing.T) {
-	deque := Make[int](CacheLinePadSize)
-	assert.Equal(t, CacheLinePadSize, deque.page_size)
-	assert.Equal(t, CacheLinePadSize/8, deque.items_per_page)
+	deque := Make[int](cache.CacheLinePadSize)
+	assert.Equal(t, cache.CacheLinePadSize, deque.page_size)
+	assert.Equal(t, cache.CacheLinePadSize/8, deque.items_per_page)
 	assert.Empty(t, deque.pages)
 }
 
 func TestItem(t *testing.T) {
-	deque := Make[int](CacheLinePadSize)
+	deque := Make[int](cache.CacheLinePadSize)
 
 	// Test when no items exist
 	item := deque.Item(0)
@@ -28,7 +29,7 @@ func TestItem(t *testing.T) {
 }
 
 func TestReserve(t *testing.T) {
-	deque := Make[int](CacheLinePadSize)
+	deque := Make[int](cache.CacheLinePadSize)
 
 	// Reserve space for capacity 15
 	deque = deque.Reserve(16)
@@ -54,7 +55,7 @@ func TestReserve(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
-	deque := Make[int](CacheLinePadSize)
+	deque := Make[int](cache.CacheLinePadSize)
 
 	// Append items
 	deque = deque.Append(1).Append(2).Append(3)
