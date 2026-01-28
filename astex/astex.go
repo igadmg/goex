@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"iter"
 
+	"deedles.dev/xiter"
 	"github.com/igadmg/goex/gx"
 	"github.com/igadmg/goex/slicesex"
 	"github.com/igadmg/goex/stringsex"
@@ -110,6 +111,17 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 				}), ", ") +
 				"]", true
 		}
+	case *ast.FuncType:
+		return "func (" +
+			stringsex.JoinSeq(xiter.Map(
+				FuncTypeParamsSeq(fieldType), func(f *ast.Field) string {
+					if len(f.Names) > 0 {
+						return stringsex.JoinSeq(slicesex.Map(f.Names, func(i *ast.Ident) string { return i.Name }), ", ") +
+							" " + gx.ShouldHave(GetFieldDeclTypeName(f.Type))
+					} else {
+						return gx.ShouldHave(GetFieldDeclTypeName(f.Type))
+					}
+				}), ", ") + ")", true
 	}
 
 	return "", false
