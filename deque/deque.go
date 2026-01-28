@@ -38,7 +38,7 @@ func MakePerfect[T any]() Of[T] {
 	r := Of[T]{
 		page_size: cache.PerfectPageSize[T](),
 	}
-	r.items_per_page = r.page_size
+	r.items_per_page = r.page_size / int(unsafeex.Sizeof[T]())
 
 	return r
 }
