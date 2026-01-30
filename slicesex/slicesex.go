@@ -114,6 +114,15 @@ func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(slices.Values(x), fn), len(x))
 }
 
+func ReplaceFunc[S ~[]E, E any](s S, v E, fn func(E) bool) ([]E, bool) {
+	vi := slices.IndexFunc(s, fn)
+	if vi == -1 {
+		return s, false
+	}
+	s[vi] = v
+	return s, true
+}
+
 func RepeatFunc[E any](count int, fn func(int) E) []E {
 	return xiter.CollectSize(xiter.Map(Range(0, count), fn), count)
 }
