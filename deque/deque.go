@@ -27,7 +27,7 @@ func Make[T any](page_size int) Of[T] {
 			r.items_per_page = page_size / tsizeof
 		}
 	} else {
-		// TODO need some special optimization for empty types
+		// TODO(iga): need some special optimization for empty types
 		r.items_per_page = r.page_size
 	}
 

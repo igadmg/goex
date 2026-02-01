@@ -4,7 +4,7 @@
 package gx
 
 func Assert(test func() bool, msg string) {
-	// TODO why debug does not work?
+	// TODO(iga): why debug does not work?
 	if !test() {
 		panic(msg)
 	}
