@@ -67,6 +67,35 @@ func (d Of[T]) Each() iter.Seq[T] {
 	}
 }
 
+func (d Of[T]) Len() int {
+	l := max(0, len(d.pages)-1) * d.items_per_page
+	l += len(d.lastPage())
+	return l
+}
+
+func (d *Of[T]) Clear(capacity ...int) {
+	page_index := 0
+	item_index := 0
+	if len(capacity) > 0 {
+		page_index = capacity[0] / d.items_per_page
+		item_index = capacity[0] % d.items_per_page
+		if item_index != 0 {
+			page_index++
+		}
+	}
+
+	for i := range d.pages {
+		if i < page_index {
+			p := d.pages[i]
+			clear(p)
+			d.pages[i] = p[0:0]
+		} else {
+			d.pages[i] = nil
+		}
+	}
+	d.pages = d.pages[0:max(0, page_index-1)]
+}
+
 func (d Of[T]) Item(index int) *T {
 	if d.items_per_page == 0 {
 		return nil
@@ -127,6 +156,22 @@ func (d Of[T]) Append(v T) Of[T] {
 	}
 	d.pages[len(d.pages)-1] = append(d.pages[len(d.pages)-1], v)
 	return d
+}
+
+func (d Of[T]) RemoveSwapback(index int) (Of[T], T) {
+	var t T
+	dl := d.Len()
+
+	if index >= dl {
+		return d, t
+	} else if index == dl-1 {
+		t = d.Pop()
+	} else {
+		t = *d.Item(index)
+		*d.Item(index) = d.Pop()
+	}
+
+	return d, t
 }
 
 func (d *Of[T]) Push(v T) {
