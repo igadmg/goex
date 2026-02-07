@@ -122,6 +122,10 @@ func GetFieldDeclTypeName(fieldType ast.Expr) (string, bool) {
 						return gx.ShouldHave(GetFieldDeclTypeName(f.Type))
 					}
 				}), ", ") + ")", true
+	case *ast.Ellipsis:
+		if elt, ok := GetFieldDeclTypeName(fieldType.Elt); ok {
+			return "..." + elt, true
+		}
 	}
 
 	return "", false
