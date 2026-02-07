@@ -68,12 +68,24 @@ func Round[T Number](v T) T {
 	return T(math.Round(float32(v)))
 }
 
+func RoundScale[T Number, F constraints.Float](v T, scale F) T {
+	return T(math.Round(float32(F(v) * scale)))
+}
+
 func Ceil[T Number](v T) T {
 	return T(math.Ceil(float32(v)))
 }
 
+func CeilScale[T Number, F constraints.Float](v T, scale F) T {
+	return T(math.Ceil(float32(F(v) * scale)))
+}
+
 func Floor[T Number](v T) T {
 	return T(math.Floor(float32(v)))
+}
+
+func FloorScale[T Number, F constraints.Float](v T, scale F) T {
+	return T(math.Floor(float32(F(v) * scale)))
 }
 
 func Sqrt[T Number](v T) T {
