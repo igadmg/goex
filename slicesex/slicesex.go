@@ -170,10 +170,10 @@ func RemoveSwapback[S ~[]E, E any](x S, index int) (S, E) {
 // casts sequence of one type to the sequence of the other type
 // works only on sequences of interfaces.
 func Cast[T any, S ~[]E, E any](x S) []T {
-	t := make([]T, 0, len(x))
-	for _, i := range x {
-		if it, ok := (any)(i).(T); ok {
-			t = append(t, it)
+	t := make([]T, len(x))
+	for i, xi := range x {
+		if it, ok := (any)(xi).(T); ok {
+			t[i] = it
 		}
 	}
 	return t
