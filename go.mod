@@ -1,14 +1,14 @@
 module github.com/igadmg/goex
 
-go 1.25
+go 1.25.0
 
 require (
 	deedles.dev/xiter v0.2.1
 	github.com/chewxy/math32 v1.11.1
 	github.com/stretchr/testify v1.11.1
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
-	golang.org/x/sys v0.40.0
+	golang.org/x/exp v0.0.0-20260212183809-81e46e3db34a
+	golang.org/x/sys v0.41.0
 )
 
 require (
