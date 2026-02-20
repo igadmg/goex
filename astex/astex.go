@@ -5,9 +5,9 @@ import (
 	"iter"
 
 	"deedles.dev/xiter"
-	"github.com/igadmg/goex/gx"
-	"github.com/igadmg/goex/slicesex"
-	"github.com/igadmg/goex/stringsex"
+	"github.com/Mishka-Squat/goex/gx"
+	"github.com/Mishka-Squat/goex/slicesex"
+	"github.com/Mishka-Squat/goex/stringsex"
 )
 
 func ExprTypeBaseFieldName(fieldType ast.Expr) (string, bool) {

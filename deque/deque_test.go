@@ -3,7 +3,7 @@ package deque
 import (
 	"testing"
 
-	"github.com/igadmg/goex/cache"
+	"github.com/Mishka-Squat/goex/cache"
 	"github.com/stretchr/testify/assert"
 )
 

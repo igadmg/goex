@@ -1,4 +1,4 @@
-module github.com/igadmg/goex
+module github.com/Mishka-Squat/goex
 
 go 1.25.0
 

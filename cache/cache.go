@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"github.com/igadmg/goex/mathex"
-	"github.com/igadmg/goex/unsafeex"
+	"github.com/Mishka-Squat/goex/mathex"
+	"github.com/Mishka-Squat/goex/unsafeex"
 	"golang.org/x/sys/cpu"
 )
 

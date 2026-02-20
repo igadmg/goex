@@ -4,8 +4,8 @@ import (
 	"iter"
 	"slices"
 
-	"github.com/igadmg/goex/cache"
-	"github.com/igadmg/goex/unsafeex"
+	"github.com/Mishka-Squat/goex/cache"
+	"github.com/Mishka-Squat/goex/unsafeex"
 )
 
 type Of[T any] struct {
