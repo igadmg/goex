@@ -44,6 +44,7 @@ func Go[T any](fn FutureFn[T]) *Future[T] {
 func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
 	tf := &Future[U]{
 		parent: f,
+		ch:     make(chan futureResult[U]), // ch == nil is used as done flag
 	}
 
 	f.then = func() {
@@ -51,7 +52,6 @@ func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
 		if f.result.err != nil {
 			tf.result.err = f.result.err
 		} else {
-			tf.ch = make(chan futureResult[U])
 			go func() {
 				v, err := fn(f.result.value)
 				tf.ch <- futureResult[U]{
@@ -65,8 +65,8 @@ func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
 	return tf
 }
 
-func (f *Future[T]) IsValid() bool {
-	return f != nil && f.ch != nil
+func (f *Future[T]) IsDone() bool {
+	return f != nil && f.ch != nil && f.result.err == nil
 }
 
 func (f *Future[T]) Value() (v T, err error) {

@@ -17,9 +17,10 @@ type Encoder struct {
 	//mutex      sync.Mutex              // each item must be sent atomically
 	w          []io.Writer             // where to send the data
 	sent       map[reflect.Type]typeId // which types we've already sent
-	countState *encoderState           // stage for writing counts
-	freeList   *encoderState           // list of free encoderStates; avoids reallocation
-	byteBuf    encBuffer               // buffer for top-level encoderState
+	typeById   map[typeId]reflect.Type
+	countState *encoderState // stage for writing counts
+	freeList   *encoderState // list of free encoderStates; avoids reallocation
+	byteBuf    encBuffer     // buffer for top-level encoderState
 	err        error
 }
 
@@ -41,6 +42,7 @@ func NewEncoder(w io.Writer) *Encoder {
 func (enc *Encoder) Make() {
 	enc.w = []io.Writer{io.Discard}
 	enc.sent = make(map[reflect.Type]typeId)
+	enc.typeById = make(map[typeId]reflect.Type)
 	enc.countState = enc.newEncoderState(new(encBuffer))
 }
 
@@ -120,8 +122,10 @@ func (enc *Encoder) sendActualType(w io.Writer, state *encoderState, ut *userTyp
 
 	// Remember we've sent this type, both what the user gave us and the base type.
 	enc.sent[ut.base] = info.id
+	enc.typeById[info.id] = ut.base
 	if ut.user != ut.base {
 		enc.sent[ut.user] = info.id
+		enc.typeById[info.id] = ut.user
 	}
 	// Now send the inner types
 	switch st := actual; st.Kind() {
@@ -211,6 +215,7 @@ func (enc *Encoder) sendTypeDescriptor(w io.Writer, state *encoderState, ut *use
 				return
 			}
 			enc.sent[rt] = info.id
+			enc.typeById[info.id] = rt
 		}
 	}
 }
@@ -275,4 +280,9 @@ func (enc *Encoder) TypeId(e any) (int, bool) {
 	}
 	id, ok := enc.sent[_type]
 	return int(id), ok
+}
+
+func (enc *Encoder) TypeById(id int) (reflect.Type, bool) {
+	_type, ok := enc.typeById[typeId(id)]
+	return _type, ok
 }
