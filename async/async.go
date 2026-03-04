@@ -81,6 +81,10 @@ func (f *Future[T]) Value() (v T, err error) {
 }
 
 func (f *Future[T]) Poll() bool {
+	if f == nil {
+		return false
+	}
+
 	if f.parent != nil {
 		return f.parent.Poll()
 	}
