@@ -1,6 +1,8 @@
 package async
 
-import "fmt"
+import (
+	"fmt"
+)
 
 var (
 	errNil = fmt.Errorf("future is nil")
@@ -16,7 +18,7 @@ type futureResult[T any] struct {
 }
 
 type FutureFn[T any] func() (T, error)
-type FutureThenFn[T, U any] func(T) (U, error)
+type FutureThenFn[T, U any] func(v T) (U, error)
 
 type Future[T any] struct {
 	parent poller
