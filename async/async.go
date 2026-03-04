@@ -66,7 +66,7 @@ func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
 }
 
 func (f *Future[T]) IsDone() bool {
-	return f != nil && f.ch != nil && f.result.err == nil
+	return f != nil && f.ch == nil && f.result.err == nil
 }
 
 func (f *Future[T]) Value() (v T, err error) {
@@ -88,6 +88,7 @@ func (f *Future[T]) Poll() bool {
 	case f.result, ok = <-f.ch:
 		if ok {
 			close(f.ch)
+			f.ch = nil
 		}
 		if f.then == nil {
 			return true
