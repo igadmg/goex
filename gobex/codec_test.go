@@ -1286,6 +1286,50 @@ func TestIgnoreInterface(t *testing.T) {
 	}
 }
 
+type Payload struct {
+	Id   int
+	Name string
+}
+
+type PacketAny struct {
+	Tag      int
+	Payload  any
+	Checksum int
+}
+
+type PacketMap struct {
+	Tag      int
+	Payload  map[string]any
+	Checksum int
+}
+
+func TestInterfaceToMap(t *testing.T) {
+	b := new(bytes.Buffer)
+
+	item1 := PacketAny{
+		Tag: 0xDEADBEEF,
+		Payload: Payload{
+			Id:   0xC1CADA,
+			Name: "Cicacda",
+		},
+		Checksum: 0x0F0F,
+	}
+	err := NewEncoder(b).Encode(item1)
+	if err != nil {
+		t.Error("expected no encode error; got", err)
+	}
+
+	itemmap := PacketMap{}
+	err = NewDecoder(b).Decode(&itemmap)
+	if err != nil {
+		t.Error("expected no encode error; got", err)
+	}
+
+	if len(itemmap.Payload) != 2 {
+		t.Error("expected payload to have two keys; got", len(itemmap.Payload))
+	}
+}
+
 type U struct {
 	A int
 	B string

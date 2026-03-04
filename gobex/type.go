@@ -681,6 +681,22 @@ func bootstrapType(name string, e any) typeId {
 		Size: uint32(rt.Size()),
 		Kind: rt.Kind(),
 	}
+	if typ.Kind == reflect.Int {
+		switch typ.Size {
+		case 4:
+			typ.Kind = reflect.Int32
+		case 8:
+			typ.Kind = reflect.Int64
+		}
+	}
+	if typ.Kind == reflect.Uint {
+		switch typ.Size {
+		case 4:
+			typ.Kind = reflect.Uint32
+		case 8:
+			typ.Kind = reflect.Uint64
+		}
+	}
 	types[rt] = typ
 	setTypeId(typ)
 	return typ.id()

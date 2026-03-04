@@ -851,34 +851,56 @@ func (dec *Decoder) decodeInterface(ityp reflect.Type, state *decoderState, valu
 	if len(name) > 1024 {
 		errorf("name too long (%d bytes): %.20q...", len(name), name)
 	}
-	// The concrete type must be registered.
-	typi, ok := nameToConcreteType.Load(string(name))
-	if !ok {
-		errorf("name not registered for interface: %q", name)
-	}
-	typ := typi.(reflect.Type)
 
-	// Read the type id of the concrete value.
-	concreteId := dec.decodeTypeSequence(true)
-	if concreteId < 0 {
-		error_(dec.err)
+	switch ityp.Kind() {
+	case reflect.Interface:
+		// The concrete type must be registered.
+		typi, ok := nameToConcreteType.Load(string(name))
+		if !ok {
+			errorf("name not registered for interface: %q", name)
+		}
+		// Read the type id of the concrete value.
+		concreteId := dec.decodeTypeSequence(true)
+		if concreteId < 0 {
+			error_(dec.err)
+		}
+		typ := typi.(reflect.Type)
+		// Byte count of value is next; we don't care what it is (it's there
+		// in case we want to ignore the value by skipping it completely).
+		state.decodeUint()
+		// Read the concrete value.
+		v := allocValue(typ)
+		dec.decodeValue(concreteId, v)
+		if dec.err != nil {
+			error_(dec.err)
+		}
+		// Assign the concrete value to the interface.
+		// Tread carefully; it might not satisfy the interface.
+		if !typ.AssignableTo(ityp) {
+			errorf("%s is not assignable to type %s", typ, ityp)
+		}
+		// Copy the interface value to the target.
+		value.Set(v)
+	case reflect.Map:
+		// Read the type id of the concrete value.
+		concreteId := dec.decodeTypeSequence(true)
+		if concreteId < 0 {
+			error_(dec.err)
+		}
+		// Byte count of value is next; we don't care what it is (it's there
+		// in case we want to ignore the value by skipping it completely).
+		state.decodeUint()
+
+		var v reflect.Value
+		wt := dec.wireType[concreteId]
+		if wt.StructT != nil {
+			anyStruct := dec.decodeAnyStruct(wt)
+			v = reflect.ValueOf(anyStruct)
+		}
+
+		// Copy the interface value to the target.
+		value.Set(v)
 	}
-	// Byte count of value is next; we don't care what it is (it's there
-	// in case we want to ignore the value by skipping it completely).
-	state.decodeUint()
-	// Read the concrete value.
-	v := allocValue(typ)
-	dec.decodeValue(concreteId, v)
-	if dec.err != nil {
-		error_(dec.err)
-	}
-	// Assign the concrete value to the interface.
-	// Tread carefully; it might not satisfy the interface.
-	if !typ.AssignableTo(ityp) {
-		errorf("%s is not assignable to type %s", typ, ityp)
-	}
-	// Copy the interface value to the target.
-	value.Set(v)
 }
 
 // ignoreInterface discards the data for an interface value with no destination.
@@ -1024,12 +1046,18 @@ func (dec *Decoder) decOpFor(wireId typeId, rt reflect.Type, name string, inProg
 			}
 
 		case reflect.Map:
-			keyId := dec.wireType[wireId].MapT.Key
-			elemId := dec.wireType[wireId].MapT.Elem
-			keyOp := dec.decOpFor(keyId, t.Key(), "key of "+name, inProgress)
-			elemOp := dec.decOpFor(elemId, t.Elem(), "element of "+name, inProgress)
-			op = func(state *decoderState, value reflect.Value) {
-				state.dec.decodeMap(t, state, value, *keyOp, *elemOp)
+			if dec.typeKind(wireId) == reflect.Interface {
+				op = func(state *decoderState, value reflect.Value) {
+					state.dec.decodeInterface(t, state, value)
+				}
+			} else {
+				keyId := dec.wireType[wireId].MapT.Key
+				elemId := dec.wireType[wireId].MapT.Elem
+				keyOp := dec.decOpFor(keyId, t.Key(), "key of "+name, inProgress)
+				elemOp := dec.decOpFor(elemId, t.Elem(), "element of "+name, inProgress)
+				op = func(state *decoderState, value reflect.Value) {
+					state.dec.decodeMap(t, state, value, *keyOp, *elemOp)
+				}
 			}
 
 		case reflect.Slice:
@@ -1282,6 +1310,9 @@ func (dec *Decoder) compatibleType(fr reflect.Type, fw typeId, inProgress map[re
 		array := wire.ArrayT
 		return t.Len() == array.Len && dec.compatibleType(t.Elem(), array.Elem, inProgress)
 	case reflect.Map:
+		if dec.typeKind(fw) == reflect.Interface {
+			return true
+		}
 		if !ok || wire.MapT == nil {
 			return false
 		}
