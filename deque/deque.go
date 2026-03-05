@@ -43,6 +43,14 @@ func MakePerfect[T any]() Of[T] {
 	return r
 }
 
+func (d Of[T]) firstPage() []T {
+	if len(d.pages) == 0 {
+		return nil
+	}
+
+	return d.pages[0]
+}
+
 func (d Of[T]) lastPage() []T {
 	if len(d.pages) == 0 {
 		return nil
@@ -67,8 +75,23 @@ func (d Of[T]) Each() iter.Seq[T] {
 	}
 }
 
+func (d Of[T]) Empty() bool {
+	switch len(d.pages) {
+	case 0:
+		return true
+	case 1:
+		return len(d.pages[0]) == 0
+	default:
+		return false
+	}
+}
+
 func (d Of[T]) Len() int {
 	l := max(0, len(d.pages)-1) * d.items_per_page
+	if l > 1 {
+		fpl := len(d.firstPage())
+		l -= d.items_per_page - fpl // first page may not be full
+	}
 	l += len(d.lastPage())
 	return l
 }
@@ -101,8 +124,16 @@ func (d Of[T]) Item(index int) *T {
 		return nil
 	}
 
-	page_index := index / d.items_per_page
-	item_index := index % d.items_per_page
+	fps := 0
+	if len(d.pages) > 1 {
+		fps = d.items_per_page - len(d.firstPage()) // first page may not be full
+	}
+
+	page_index := index / (d.items_per_page + fps)
+	item_index := index % (d.items_per_page + fps)
+	if index < d.items_per_page-fps {
+		item_index = index
+	}
 
 	if len(d.pages) <= page_index {
 		return nil
@@ -187,6 +218,20 @@ func (d *Of[T]) Pop() (v T) {
 			d.pages[len(d.pages)-1] = lastPage
 		} else {
 			d.pages = d.pages[:len(d.pages)-1]
+		}
+	}
+	return
+}
+
+func (d *Of[T]) PopFront() (v T) {
+	firstPage := d.firstPage()
+	if len(firstPage) > 0 {
+		v = firstPage[0]
+		firstPage = firstPage[1:]
+		if len(firstPage) > 0 {
+			d.pages[0] = firstPage
+		} else {
+			d.pages = slices.Delete(d.pages, 0, 1)
 		}
 	}
 	return
