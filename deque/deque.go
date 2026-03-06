@@ -125,7 +125,7 @@ func (d Of[T]) Item(index int) *T {
 	}
 
 	fps := 0
-	if len(d.pages) > 1 {
+	if len(d.pages) > 1 { // TODO(iga): that is performance penalty for PopFront
 		fps = d.items_per_page - len(d.pages[0]) // first page may not be full
 	}
 
@@ -223,6 +223,7 @@ func (d *Of[T]) Pop() (v T) {
 	return
 }
 
+// TODO(iga): having that function introduce light complexity and performance penalty for normal operation. Consider extracting to separate container, or optimize some other way.
 func (d *Of[T]) PopFront() (v T) {
 	firstPage := d.firstPage()
 	if len(firstPage) > 0 {
