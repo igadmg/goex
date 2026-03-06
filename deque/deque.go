@@ -126,7 +126,7 @@ func (d Of[T]) Item(index int) *T {
 
 	fps := 0
 	if len(d.pages) > 1 {
-		fps = d.items_per_page - len(d.firstPage()) // first page may not be full
+		fps = d.items_per_page - len(d.pages[0]) // first page may not be full
 	}
 
 	page_index := index / (d.items_per_page + fps)
