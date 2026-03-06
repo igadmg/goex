@@ -9,9 +9,10 @@ import (
 )
 
 type Of[T any] struct {
-	page_size      int
-	items_per_page int
-	pages          [][]T
+	page_size         int
+	items_per_page    int
+	pages             [][]T
+	first_page_offset int // offset f first page data when making PopFront it increases
 }
 
 func Make[T any](page_size int) Of[T] {
@@ -124,14 +125,10 @@ func (d Of[T]) Item(index int) *T {
 		return nil
 	}
 
-	fps := 0
-	if len(d.pages) > 1 { // TODO(iga): that is performance penalty for PopFront
-		fps = d.items_per_page - len(d.pages[0]) // first page may not be full
-	}
-
-	page_index := index / (d.items_per_page + fps)
-	item_index := index % (d.items_per_page + fps)
-	if index < d.items_per_page-fps {
+	fpo := d.first_page_offset
+	page_index := index / (d.items_per_page + fpo)
+	item_index := index % (d.items_per_page + fpo)
+	if index < d.items_per_page-fpo {
 		item_index = index
 	}
 
@@ -223,16 +220,22 @@ func (d *Of[T]) Pop() (v T) {
 	return
 }
 
-// TODO(iga): having that function introduce light complexity and performance penalty for normal operation. Consider extracting to separate container, or optimize some other way.
 func (d *Of[T]) PopFront() (v T) {
 	firstPage := d.firstPage()
 	if len(firstPage) > 0 {
-		v = firstPage[0]
-		firstPage = firstPage[1:]
-		if len(firstPage) > 0 {
-			d.pages[0] = firstPage
-		} else {
+		v = firstPage[d.first_page_offset]
+
+		var et T
+		firstPage[d.first_page_offset] = et
+
+		d.first_page_offset++
+		if d.first_page_offset == d.items_per_page {
 			d.pages = slices.Delete(d.pages, 0, 1)
+			d.first_page_offset = 0
+		} else if d.first_page_offset == len(firstPage) {
+			d.first_page_offset = 0
+			firstPage = firstPage[0:0]
+			d.pages[0] = firstPage
 		}
 	}
 	return
