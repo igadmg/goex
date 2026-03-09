@@ -747,6 +747,10 @@ func (w *wireType) string() string {
 	return unknown
 }
 
+func (w *wireType) Name() string {
+	return w.string()
+}
+
 func (w *wireType) Kind() reflect.Kind {
 	if w == nil {
 		return reflect.Invalid
@@ -822,14 +826,15 @@ func buildTypeInfo(ut *userTypeInfo, rt reflect.Type) (*typeInfo, error) {
 		return info, nil
 	}
 
-	gt, err := getBaseType(rt.Name(), rt)
+	rt_name := rt.String()
+	gt, err := getBaseType(rt_name, rt)
 	if err != nil {
 		return nil, err
 	}
 	info := &typeInfo{id: gt.id()}
 
 	if ut.externalEnc != 0 {
-		userType, err := getType(rt.Name(), ut, rt)
+		userType, err := getType(rt_name, ut, rt)
 		if err != nil {
 			return nil, err
 		}
@@ -976,11 +981,15 @@ func Register(value any) {
 		}
 	}
 	if rt.Name() != "" {
-		if rt.PkgPath() == "" {
-			name = star + rt.Name()
-		} else {
-			name = star + rt.PkgPath() + "." + rt.Name()
-		}
+		name = star + name
+		// NOTE(iga): we store short package name instead of fullpath
+		/*
+			if rt.PkgPath() == "" {
+				name = star + rt.Name()
+			} else {
+				name = star + rt.PkgPath() + "." + rt.Name()
+			}
+		*/
 	}
 
 	RegisterName(name, value)

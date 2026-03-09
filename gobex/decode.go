@@ -832,37 +832,49 @@ func (dec *Decoder) ignoreSlice(state *decoderState, elemOp decOp) {
 // If the name is empty, the value is nil and no value is sent.
 func (dec *Decoder) decodeInterface(ityp reflect.Type, state *decoderState, value reflect.Value) {
 	// Read the name of the concrete type.
-	nr := state.decodeUint()
-	if nr > 1<<31 { // zero is permissible for anonymous types
-		errorf("invalid type name length %d", nr)
-	}
-	if nr > uint64(state.b.Len()) {
-		errorf("invalid type name length %d: exceeds input size", nr)
-	}
-	n := int(nr)
-	name := state.b.Bytes()[:n]
-	state.b.Drop(n)
-	// Allocate the destination interface value.
-	if len(name) == 0 {
-		// Copy the nil interface value to the target.
-		value.SetZero()
-		return
-	}
-	if len(name) > 1024 {
-		errorf("name too long (%d bytes): %.20q...", len(name), name)
-	}
+	//nr := state.decodeUint()
+	//if nr > 1<<31 { // zero is permissible for anonymous types
+	//	errorf("invalid type name length %d", nr)
+	//}
+	//if nr > uint64(state.b.Len()) {
+	//	errorf("invalid type name length %d: exceeds input size", nr)
+	//}
+	//n := int(nr)
+	//name := state.b.Bytes()[:n]
+	//state.b.Drop(n)
+	//// Allocate the destination interface value.
+	//if len(name) == 0 {
+	//	// Copy the nil interface value to the target.
+	//	value.SetZero()
+	//	return
+	//}
+	//if len(name) > 1024 {
+	//	errorf("name too long (%d bytes): %.20q...", len(name), name)
+	//}
+
+	kind := (reflect.Kind)(state.decodeUint())
 
 	switch ityp.Kind() {
 	case reflect.Interface:
-		// The concrete type must be registered.
-		typi, ok := nameToConcreteType.Load(string(name))
-		if !ok {
-			errorf("name not registered for interface: %q", name)
-		}
 		// Read the type id of the concrete value.
 		concreteId := dec.decodeTypeSequence(true)
 		if concreteId < 0 {
 			error_(dec.err)
+		}
+		name := ""
+		if concreteId.isBuiltin() {
+			name = concreteId.name()
+		} else {
+			wt := dec.wireType[concreteId]
+			name = wt.Name()
+		}
+		if kind == reflect.Pointer {
+			name = "*" + name
+		}
+		// The concrete type must be registered.
+		typi, ok := nameToConcreteType.Load(string(name))
+		if !ok {
+			errorf("name not registered for interface: %q", name)
 		}
 		typ := typi.(reflect.Type)
 		// Byte count of value is next; we don't care what it is (it's there
@@ -905,22 +917,27 @@ func (dec *Decoder) decodeInterface(ityp reflect.Type, state *decoderState, valu
 
 // ignoreInterface discards the data for an interface value with no destination.
 func (dec *Decoder) ignoreInterface(state *decoderState) {
-	// Read the name of the concrete type.
-	n, ok := state.getLength()
-	if !ok {
-		errorf("bad interface encoding: name too large for buffer")
-	}
-	bn := state.b.Len()
-	if bn < n {
-		errorf("invalid interface value length %d: exceeds input size %d", n, bn)
-	}
-	state.b.Drop(n)
+	/*
+		// Read the name of the concrete type.
+		n, ok := state.getLength()
+		if !ok {
+			errorf("bad interface encoding: name too large for buffer")
+		}
+		bn := state.b.Len()
+		if bn < n {
+			errorf("invalid interface value length %d: exceeds input size %d", n, bn)
+		}
+		state.b.Drop(n)
+	*/
+	kind := (reflect.Kind)(state.decodeUint())
+	_ = kind
+
 	id := dec.decodeTypeSequence(true)
 	if id < 0 {
 		error_(dec.err)
 	}
 	// At this point, the decoder buffer contains a delimited value. Just toss it.
-	n, ok = state.getLength()
+	n, ok := state.getLength()
 	if !ok {
 		errorf("bad interface encoding: data length too large for buffer")
 	}

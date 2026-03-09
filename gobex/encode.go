@@ -398,16 +398,23 @@ func (enc *Encoder) encodeInterface(b *encBuffer, iv reflect.Value) {
 	}
 
 	ut := userType(iv.Elem().Type())
-	namei, ok := concreteTypeToName.Load(ut.base)
-	if !ok {
-		namei = ut.base.String()
-		//errorf("type not registered for interface: %s", ut.base)
-	}
-	name := namei.(string)
 
-	// Send the name.
-	state.encodeUint(uint64(len(name)))
-	state.b.WriteString(name)
+	// NOTE(iga): do not save interface pye name, expected it to be saved in type descriptor
+	/*
+		namei, ok := concreteTypeToName.Load(ut.base)
+		if !ok {
+			namei = ut.base.String()
+			//errorf("type not registered for interface: %s", ut.base)
+		}
+		name := namei.(string)
+
+		 Send the name.
+		state.encodeUint(uint64(len(name)))
+		state.b.WriteString(name)
+	*/
+	// NOTE(iga): but let's send value type Kind
+	state.encodeUint(uint64(ut.user.Kind()))
+
 	// Define the type id if necessary.
 	enc.sendTypeDescriptor(enc.writer(), state, ut)
 	// Send the type id.
