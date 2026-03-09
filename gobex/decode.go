@@ -872,7 +872,7 @@ func (dec *Decoder) decodeInterface(ityp reflect.Type, state *decoderState, valu
 			name = "*" + name
 		}
 		// The concrete type must be registered.
-		typi, ok := nameToConcreteType.Load(string(name))
+		typi, ok := nameToConcreteType.Load(name)
 		if !ok {
 			errorf("name not registered for interface: %q", name)
 		}
