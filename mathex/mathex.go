@@ -83,6 +83,14 @@ func CeilScale[T Number, F constraints.Float](v T, scale F) T {
 	return T(math.Ceil(float32(F(v) * scale)))
 }
 
+func CeilScaleSlice[T Number, F constraints.Float](v []T, scale F) []T {
+	for i := range v {
+		v[i] = T(math.Ceil(float32(F(v[i]) * scale)))
+	}
+
+	return v
+}
+
 func Floor[T Number](v T) T {
 	return T(math.Floor(float32(v)))
 }
