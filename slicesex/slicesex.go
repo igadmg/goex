@@ -131,6 +131,14 @@ func Range(start int, count int) iter.Seq[int] {
 	return xiter.Limit(xiter.Generate(start, 1), count)
 }
 
+func ToSet[V comparable](seq []V) map[V]struct{} {
+	m := map[V]struct{}{}
+	for _, k := range seq {
+		m[k] = struct{}{}
+	}
+	return m
+}
+
 func ToMap[T any, K comparable](src []T, key func(T) K) map[K]T {
 	var result = make(map[K]T)
 	for _, v := range src {
