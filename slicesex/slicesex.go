@@ -106,6 +106,16 @@ func Filter[S ~[]E, E any](x S, keep func(E) bool) []E {
 	return xiter.CollectSize(xiter.Filter(slices.Values(x), keep), len(x))
 }
 
+func FilterSet[S ~[]E, E comparable, V any](x S, set map[E]V) []E {
+	r := make([]E, 0, len(x))
+	for _, i := range x {
+		if _, ok := set[i]; ok {
+			r = append(r, i)
+		}
+	}
+	return r
+}
+
 func Map[S ~[]E, E, V any](x S, fn func(E) V) iter.Seq[V] {
 	return xiter.Map(slices.Values(x), fn)
 }
