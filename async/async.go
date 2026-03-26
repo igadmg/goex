@@ -24,10 +24,10 @@ type Future[T any] struct {
 	parent poller
 	ch     chan futureResult[T]
 	result futureResult[T]
-	then   func()
+	then   func() bool
 }
 
-func Go[T any](fn FutureFn[T]) *Future[T] {
+func Go[T any](fn FutureFn[T], onErr ...func(error)) *Future[T] {
 	f := &Future[T]{
 		ch: make(chan futureResult[T]),
 	}
@@ -43,16 +43,21 @@ func Go[T any](fn FutureFn[T]) *Future[T] {
 	return f
 }
 
-func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
+func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U], onErr ...func(error)) *Future[U] {
 	tf := &Future[U]{
 		parent: f,
 		ch:     make(chan futureResult[U]), // ch == nil is used as done flag
 	}
 
-	f.then = func() {
+	f.then = func() bool {
 		tf.parent = nil
 		if f.result.err != nil {
 			tf.result.err = f.result.err
+			for _, e := range onErr {
+				e(f.result.err)
+			}
+
+			return true
 		} else {
 			go func() {
 				v, err := fn(f.result.value)
@@ -61,15 +66,17 @@ func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U]) *Future[U] {
 					err:   err,
 				}
 			}()
+
+			return false
 		}
 	}
 
 	return tf
 }
 
-func (f *Future[T]) IsDone() bool {
-	return f != nil && f.ch == nil && f.result.err == nil
-}
+//func (f *Future[T]) IsDone() bool {
+//	return f != nil && f.ch == nil && f.result.err == nil
+//}
 
 func (f *Future[T]) Value() (v T, err error) {
 	if f != nil {
@@ -80,6 +87,7 @@ func (f *Future[T]) Value() (v T, err error) {
 	return
 }
 
+// Poll - polls for value, id value is ready or error occured returns true.
 func (f *Future[T]) Poll() bool {
 	if f == nil {
 		return false
@@ -99,8 +107,7 @@ func (f *Future[T]) Poll() bool {
 		if f.then == nil {
 			return true
 		} else {
-			f.then()
-			return false
+			return f.then()
 		}
 	default:
 		return false
