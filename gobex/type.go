@@ -266,6 +266,7 @@ var (
 	// Primordial types, needed during initialization.
 	// Always passed as pointers so the interface{} type
 	// goes through without losing its interfaceness.
+	tNone       = bootstrapType("struct{}", (*struct{})(nil))
 	tBool       = bootstrapType("bool", (*bool)(nil))
 	tInt        = bootstrapType("int", (*int)(nil))
 	tInt8       = bootstrapType("int8", (*int8)(nil))
@@ -300,14 +301,20 @@ var tWireType = mustGetTypeInfo(wireTypeType).id
 var wireTypeUserInfo *userTypeInfo // userTypeInfo of wireType
 
 func init() {
+	wid := typeId(28)
+	widCheckId := func(tid typeId) {
+		checkId(wid, tid)
+		wid++
+	}
 	// Some magic numbers to make sure there are no surprises.
-	checkId(27, tWireType)
-	checkId(28, mustGetTypeInfo(reflect.TypeFor[arrayType]()).id)
-	checkId(29, mustGetTypeInfo(reflect.TypeFor[CommonType]()).id)
-	checkId(30, mustGetTypeInfo(reflect.TypeFor[sliceType]()).id)
-	checkId(31, mustGetTypeInfo(reflect.TypeFor[structType]()).id)
-	checkId(32, mustGetTypeInfo(reflect.TypeFor[fieldType]()).id)
-	checkId(34, mustGetTypeInfo(reflect.TypeFor[mapType]()).id)
+	widCheckId(tWireType)
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[arrayType]()).id)
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[CommonType]()).id)
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[sliceType]()).id)
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[structType]()).id)
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[fieldType]()).id)
+	wid++
+	widCheckId(mustGetTypeInfo(reflect.TypeFor[mapType]()).id)
 
 	copy(builtinIdToTypeSlice[:], idToTypeSlice)
 

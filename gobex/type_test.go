@@ -17,6 +17,7 @@ type typeT struct {
 }
 
 var basicTypes = []typeT{
+	{tNone, "struct{}"},
 	{tBool, "bool"},
 	{tInt, "int"},
 	{tUint, "uint"},
@@ -133,6 +134,7 @@ type Bar struct {
 
 // This structure has pointers and refers to itself, making it a good test case.
 type Foo struct {
+	N struct{}
 	A int
 	B int32 // will become int
 	C string
@@ -148,7 +150,7 @@ func TestStructType(t *testing.T) {
 	sstruct := getTypeUnlocked("Foo", reflect.TypeFor[Foo]())
 	str := sstruct.string()
 	// If we can print it correctly, we built it correctly.
-	expected := "Foo = struct { A int; B int32; C string; D bytes; E float64; F float64; G Bar = struct { X string; }; H Bar; I Foo; }"
+	expected := "Foo = struct { N struct{}; A int; B int32; C string; D bytes; E float64; F float64; G Bar = struct { X string; }; H Bar; I Foo; }"
 	if str != expected {
 		t.Errorf("struct printed as %q; expected %q", str, expected)
 	}
