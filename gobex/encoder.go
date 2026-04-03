@@ -15,13 +15,14 @@ import (
 // goroutines.
 type Encoder struct {
 	//mutex      sync.Mutex              // each item must be sent atomically
-	w          []io.Writer             // where to send the data
-	sent       map[reflect.Type]typeId // which types we've already sent
-	typeById   map[typeId]reflect.Type
-	countState *encoderState // stage for writing counts
-	freeList   *encoderState // list of free encoderStates; avoids reallocation
-	byteBuf    encBuffer     // buffer for top-level encoderState
-	err        error
+	w                   []io.Writer             // where to send the data
+	sent                map[reflect.Type]typeId // which types we've already sent
+	typeById            map[typeId]reflect.Type
+	countState          *encoderState // stage for writing counts
+	freeList            *encoderState // list of free encoderStates; avoids reallocation
+	byteBuf             encBuffer     // buffer for top-level encoderState
+	err                 error
+	TypeImportFunctions map[typeId]func(any) any
 }
 
 // Before we encode a message, we reserve space at the head of the
@@ -44,6 +45,7 @@ func (enc *Encoder) Make() {
 	enc.sent = make(map[reflect.Type]typeId)
 	enc.typeById = make(map[typeId]reflect.Type)
 	enc.countState = enc.newEncoderState(new(encBuffer))
+	enc.TypeImportFunctions = map[typeId]func(any) any{}
 }
 
 func (enc *Encoder) SetWriter(w io.Writer) {

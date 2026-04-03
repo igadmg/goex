@@ -111,7 +111,8 @@ var (
 	textMarshalerInterfaceType     = reflect.TypeFor[encoding.TextMarshaler]()
 	textUnmarshalerInterfaceType   = reflect.TypeFor[encoding.TextUnmarshaler]()
 
-	wireTypeType = reflect.TypeFor[wireType]()
+	wireTypeType        = reflect.TypeFor[wireType]()
+	typeImportFunctions map[int]func(any) any
 )
 
 // implementsInterface reports whether the type implements the
@@ -313,8 +314,13 @@ func init() {
 	widCheckId(mustGetTypeInfo(reflect.TypeFor[sliceType]()).id)
 	widCheckId(mustGetTypeInfo(reflect.TypeFor[structType]()).id)
 	widCheckId(mustGetTypeInfo(reflect.TypeFor[fieldType]()).id)
-	wid++
+	wid++ //skip []fieldType
 	widCheckId(mustGetTypeInfo(reflect.TypeFor[mapType]()).id)
+
+	if wid >= firstUserId {
+		fmt.Fprintf(os.Stderr, "checkId: %d should be less then %d\n", int(wid), int(firstUserId))
+		panic("bootstrap type overflow id")
+	}
 
 	copy(builtinIdToTypeSlice[:], idToTypeSlice)
 

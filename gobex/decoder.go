@@ -36,7 +36,8 @@ type Decoder struct {
 	countBuf     []byte                                 // used for decoding integers while parsing messages
 	err          error
 	// ignoreDepth tracks the depth of recursively parsed ignored fields
-	ignoreDepth int
+	ignoreDepth         int
+	TypeExportFunctions map[typeId]func(any) any
 }
 
 // NewDecoder returns a new decoder that reads from the [io.Reader].
@@ -55,6 +56,7 @@ func (dec *Decoder) Make() {
 	dec.decoderCache = make(map[reflect.Type]map[typeId]*decEngine)
 	dec.ignorerCache = make(map[typeId]*decEngine)
 	dec.countBuf = make([]byte, 9) // counts may be uint64s (unlikely!), require 9 bytes
+	dec.TypeExportFunctions = map[typeId]func(any) any{}
 }
 
 func (dec *Decoder) SetReader(r io.Reader) {
