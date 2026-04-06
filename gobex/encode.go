@@ -570,10 +570,10 @@ func (enc *Encoder) encOpFor(rt reflect.Type, inProgress map[reflect.Type]*encOp
 		errorf("can't happen: encode type %s", rt)
 	}
 
-	if len(enc.TypeImportFunctions) > 0 {
+	if len(enc.TypeTransformFunctions) > 0 {
 		ti, err := getTypeInfo(ut)
 		if err == nil {
-			if imfn, ok := enc.TypeImportFunctions[ti.id]; ok {
+			if imfn, ok := enc.TypeTransformFunctions[int(ti.id)]; ok {
 				pop := op
 				op = func(i *encInstr, state *encoderState, iv reflect.Value) {
 					v := imfn(iv.Interface())

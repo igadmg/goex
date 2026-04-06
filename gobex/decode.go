@@ -1116,7 +1116,7 @@ func (dec *Decoder) decOpFor(wireId typeId, rt reflect.Type, name string, inProg
 		errorf("decode can't handle type %s", rt)
 	}
 
-	if exfn, ok := dec.TypeExportFunctions[wireId]; ok {
+	if exfn, ok := dec.TypeTransformFunctions[int(wireId)]; ok {
 		pop := op
 		op = func(state *decoderState, value reflect.Value) {
 			pop(state, value)
