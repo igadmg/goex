@@ -19,6 +19,22 @@ func Reserve[S ~[]E, E any](x S, size int) S {
 	return x
 }
 
+func ReserveFill[S ~[]E, E any](x S, v E, size int) S {
+	if len(x) < size {
+		if size > cap(x) {
+			x = slices.Grow(x, size)
+		}
+
+		ilen := len(x)
+		x = x[0:size]
+		for ; ilen < size; ilen++ {
+			x[ilen] = v
+		}
+	}
+
+	return x
+}
+
 func BinarySearchInsert[S ~[]E, E any](x S, item E, cmp func(E, E) int) S {
 	i, _ := slices.BinarySearchFunc(x, item, cmp)
 	return slices.Insert(x, i, item)
