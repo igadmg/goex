@@ -52,6 +52,10 @@ func (enc *Encoder) SetWriter(w io.Writer) {
 	enc.w[0] = w
 }
 
+func (enc *Encoder) SetTypeTransform(typeid int, fn func(any) any) {
+	enc.TypeTransformFunctions[typeid] = fn
+}
+
 // writer returns the innermost writer the encoder is using.
 func (enc *Encoder) writer() io.Writer {
 	return enc.w[len(enc.w)-1]

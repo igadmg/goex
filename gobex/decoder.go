@@ -66,6 +66,10 @@ func (dec *Decoder) SetReader(r io.Reader) {
 	dec.r = r
 }
 
+func (dec *Decoder) SetTypeTransform(typeid int, fn func(any) any) {
+	dec.TypeTransformFunctions[typeid] = fn
+}
+
 func (dec *Decoder) typeSize(id typeId) uint32 {
 	if id.isBuiltin() {
 		t := builtinIdToType(id).(*CommonType)
