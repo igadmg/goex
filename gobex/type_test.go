@@ -24,6 +24,7 @@ var basicTypes = []typeT{
 	{tFloat32, "float32"},
 	{tBytes, "bytes"},
 	{tString, "string"},
+	{tError, "error"},
 }
 
 func getTypeUnlocked(name string, rt reflect.Type) gobType {

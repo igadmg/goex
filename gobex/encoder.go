@@ -261,6 +261,7 @@ func (enc *Encoder) EncodeValue(value reflect.Value) error {
 	enc.byteBuf.Reset()
 	enc.byteBuf.Write(spaceForLength)
 	state := enc.newEncoderState(&enc.byteBuf)
+	defer enc.freeEncoderState(state)
 
 	enc.sendTypeDescriptor(enc.writer(), state, ut)
 	enc.sendTypeId(state, ut)
@@ -274,7 +275,6 @@ func (enc *Encoder) EncodeValue(value reflect.Value) error {
 		enc.writeMessage(enc.writer(), state.b)
 	}
 
-	enc.freeEncoderState(state)
 	return enc.err
 }
 

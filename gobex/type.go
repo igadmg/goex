@@ -287,6 +287,7 @@ var (
 	tBytes      = bootstrapType("bytes", (*[]byte)(nil))
 	tString     = bootstrapType("string", (*string)(nil))
 	tInterface  = bootstrapType("interface", (*any)(nil))
+	tError      = bootstrapType("error", (*error)(nil))
 	// Reserve some Ids for compatible expansion
 	tReserved7 = bootstrapType("_reserved1", (*struct{ r7 int })(nil))
 	tReserved6 = bootstrapType("_reserved1", (*struct{ r6 int })(nil))
@@ -302,7 +303,7 @@ var tWireType = mustGetTypeInfo(wireTypeType).id
 var wireTypeUserInfo *userTypeInfo // userTypeInfo of wireType
 
 func init() {
-	wid := typeId(28)
+	wid := typeId(29)
 	widCheckId := func(tid typeId) {
 		checkId(wid, tid)
 		wid++
@@ -539,6 +540,9 @@ func newTypeObject(name string, ut *userTypeInfo, rt reflect.Type) (gobType, err
 		return tString.gobType(), nil
 
 	case reflect.Interface:
+		if t.Name() == "error" {
+			return tError.gobType(), nil
+		}
 		return tInterface.gobType(), nil
 
 	case reflect.Array:

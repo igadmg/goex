@@ -366,6 +366,8 @@ func encodeReflectValue(state *encoderState, v reflect.Value, op encOp, indir in
 // encodeMap encodes a map as unsigned count followed by key:value pairs.
 func (enc *Encoder) encodeMap(b *encBuffer, mv reflect.Value, keyOp, elemOp encOp, keyIndir, elemIndir int) {
 	state := enc.newEncoderState(b)
+	defer enc.freeEncoderState(state)
+
 	state.fieldnum = -1
 	state.sendZero = true
 	state.encodeUint(uint64(mv.Len()))
@@ -374,7 +376,6 @@ func (enc *Encoder) encodeMap(b *encBuffer, mv reflect.Value, keyOp, elemOp encO
 		encodeReflectValue(state, mi.Key(), keyOp, keyIndir)
 		encodeReflectValue(state, mi.Value(), elemOp, elemIndir)
 	}
-	enc.freeEncoderState(state)
 }
 
 // encodeInterface encodes the interface value iv.
@@ -390,6 +391,8 @@ func (enc *Encoder) encodeInterface(b *encBuffer, iv reflect.Value) {
 		errorf("gob: cannot encode nil pointer of type %s inside interface", iv.Elem().Type())
 	}
 	state := enc.newEncoderState(b)
+	defer enc.freeEncoderState(state)
+
 	state.fieldnum = -1
 	state.sendZero = true
 	if iv.IsNil() {
@@ -435,6 +438,14 @@ func (enc *Encoder) encodeInterface(b *encBuffer, iv reflect.Value) {
 	if enc.err != nil {
 		error_(enc.err)
 	}
+}
+
+func (enc *Encoder) encodeError(b *encBuffer, iv reflect.Value) {
+	s := iv.String()
+
+	state := enc.newEncoderState(b)
+	state.encodeUint(uint64(len(s)))
+	state.b.WriteString(s)
 	enc.freeEncoderState(state)
 }
 
@@ -557,12 +568,22 @@ func (enc *Encoder) encOpFor(rt reflect.Type, inProgress map[reflect.Type]*encOp
 				state.enc.encodeStruct(state.b, enc, sv)
 			}
 		case reflect.Interface:
-			op = func(i *encInstr, state *encoderState, iv reflect.Value) {
-				if !state.sendZero && (!iv.IsValid() || iv.IsNil()) {
-					return
+			if t.Name() == "error" {
+				op = func(i *encInstr, state *encoderState, iv reflect.Value) {
+					if !state.sendZero && (!iv.IsValid() || iv.IsNil()) {
+						return
+					}
+					state.update(i)
+					state.enc.encodeError(state.b, iv)
 				}
-				state.update(i)
-				state.enc.encodeInterface(state.b, iv)
+			} else {
+				op = func(i *encInstr, state *encoderState, iv reflect.Value) {
+					if !state.sendZero && (!iv.IsValid() || iv.IsNil()) {
+						return
+					}
+					state.update(i)
+					state.enc.encodeInterface(state.b, iv)
+				}
 			}
 		}
 	}

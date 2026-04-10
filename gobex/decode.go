@@ -1329,6 +1329,9 @@ func (dec *Decoder) compatibleType(fr reflect.Type, fw typeId, inProgress map[re
 	case reflect.String:
 		return fw == tString
 	case reflect.Interface:
+		if t.Name() == "error" {
+			return fw == tError
+		}
 		return fw == tInterface
 	case reflect.Array:
 		if !ok || wire.ArrayT == nil {
