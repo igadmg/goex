@@ -74,6 +74,14 @@ func Then[T any, U any](f *Future[T], fn FutureThenFn[T, U], onErr ...func(error
 	return tf
 }
 
+func Error[T any](err error) *Future[T] {
+	return &Future[T]{
+		result: futureResult[T]{
+			err: err,
+		},
+	}
+}
+
 //func (f *Future[T]) IsDone() bool {
 //	return f != nil && f.ch == nil && f.result.err == nil
 //}
