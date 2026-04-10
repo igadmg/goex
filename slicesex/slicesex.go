@@ -7,6 +7,10 @@ import (
 	"deedles.dev/xiter"
 )
 
+func Prepend[S []E, E any](s S, prefix ...E) S {
+	return append(prefix, s...)
+}
+
 func Reserve[S ~[]E, E any](x S, size int) S {
 	if len(x) < size {
 		if size > cap(x) {
