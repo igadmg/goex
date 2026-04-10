@@ -425,13 +425,14 @@ func (enc *Encoder) encodeInterface(b *encBuffer, iv reflect.Value) {
 	// Encode the value into a new buffer. Any nested type definitions
 	// should be written to b, before the encoded value.
 	enc.pushWriter(b)
+	defer enc.popWriter()
+
 	data := encBufferPool.Get().(*encBuffer)
 	data.Write(spaceForLength)
 	enc.encode(data, elem, ut)
 	if enc.err != nil {
 		error_(enc.err)
 	}
-	enc.popWriter()
 	enc.writeMessage(b, data)
 	data.Reset()
 	encBufferPool.Put(data)

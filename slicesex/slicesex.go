@@ -140,6 +140,13 @@ func Map[S ~[]E, E, V any](x S, fn func(E) V) iter.Seq[V] {
 	return xiter.Map(slices.Values(x), fn)
 }
 
+func Apply[S ~[]E, E any](x S, fn func(E) E) []E {
+	for i := range x {
+		x[i] = fn(x[i])
+	}
+	return x
+}
+
 func Transform[S ~[]E, E, V any](x S, fn func(E) V) []V {
 	return xiter.CollectSize(xiter.Map(slices.Values(x), fn), len(x))
 }
