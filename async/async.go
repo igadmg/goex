@@ -1,7 +1,11 @@
 package async
 
 import (
+	"context"
 	"fmt"
+	"sync"
+
+	"github.com/Mishka-Squat/goex/contextex"
 )
 
 var (
@@ -17,6 +21,8 @@ type futureResult[T any] struct {
 	err   error
 }
 
+type FutureCtxFn[T any] func(ctx context.Context) (T, error)
+type FutureCtxThenFn[T, U any] func(ctx context.Context, v T) (U, error)
 type FutureFn[T any] func() (T, error)
 type FutureThenFn[T, U any] func(v T) (U, error)
 
@@ -25,6 +31,22 @@ type Future[T any] struct {
 	ch     chan futureResult[T]
 	result futureResult[T]
 	then   func() bool
+}
+
+func GoCtx[T any](ctx context.Context, fn FutureCtxFn[T], onErr ...func(error)) *Future[T] {
+	f := &Future[T]{
+		ch: make(chan futureResult[T]),
+	}
+
+	go func() {
+		v, err := fn(ctx)
+		f.ch <- futureResult[T]{
+			value: v,
+			err:   err,
+		}
+	}()
+
+	return f
 }
 
 func Go[T any](fn FutureFn[T], onErr ...func(error)) *Future[T] {
@@ -82,6 +104,14 @@ func Error[T any](err error) *Future[T] {
 	}
 }
 
+func ErrorF[T any](format string, v ...any) *Future[T] {
+	return &Future[T]{
+		result: futureResult[T]{
+			err: fmt.Errorf(format, v...),
+		},
+	}
+}
+
 //func (f *Future[T]) IsDone() bool {
 //	return f != nil && f.ch == nil && f.result.err == nil
 //}
@@ -120,4 +150,20 @@ func (f *Future[T]) Poll() bool {
 	default:
 		return false
 	}
+}
+
+func (f *Future[T]) Await(ctx context.Context) (v T, err error) {
+	var wg sync.WaitGroup
+
+	wg.Go(contextex.Cancellabe(ctx, func(ctx context.Context) bool {
+		if f.Poll() {
+			v, err = f.Value()
+			return false
+		}
+
+		return true
+	}))
+	wg.Wait()
+
+	return
 }
