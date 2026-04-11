@@ -850,6 +850,8 @@ func buildTypeInfo(ut *userTypeInfo, rt reflect.Type) (*typeInfo, error) {
 	}
 	info := &typeInfo{id: gt.id()}
 
+	fmt.Printf("Register new typeInfo %d %s\n", gt.id(), rt_name)
+
 	if ut.externalEnc != 0 {
 		userType, err := getType(rt_name, ut, rt)
 		if err != nil {
