@@ -51,9 +51,9 @@ func (g CancelContext) AfterFunc(fn func()) {
 }
 
 func (g CancelContext) Cancel() CancelContext {
-	if g.Context != nil {
+	if g.cancel != nil {
 		g.cancel()
-		g.Context = nil
+		//g.Context = nil // no need to clear context here, because that crashes waiting goroutines
 		g.cancel = nil
 	}
 
