@@ -202,6 +202,10 @@ func (d Of[T]) RemoveSwapback(index int) (Of[T], T) {
 	return d, t
 }
 
+func (d *Of[T]) Top() T {
+	return *d.Last()
+}
+
 func (d *Of[T]) Push(v T) {
 	*d = d.Append(v)
 }

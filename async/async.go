@@ -112,9 +112,9 @@ func ErrorF[T any](format string, v ...any) *Future[T] {
 	}
 }
 
-//func (f *Future[T]) IsDone() bool {
-//	return f != nil && f.ch == nil && f.result.err == nil
-//}
+func (f *Future[T]) IsDone() bool {
+	return f != nil && f.ch == nil && f.result.err == nil
+}
 
 func (f *Future[T]) Value() (v T, err error) {
 	if f != nil {
@@ -133,6 +133,10 @@ func (f *Future[T]) Poll() bool {
 
 	if f.parent != nil {
 		return f.parent.Poll()
+	}
+
+	if f.ch == nil {
+		return false
 	}
 
 	ok := false
