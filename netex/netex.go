@@ -19,18 +19,22 @@ func GetOutboundIP() (net.IP, error) {
 }
 
 // GetLocalIP returns the non loopback local IP of the host
-func GetLocalIP() (net.IP, error) {
+func GetLocalIP() (ip net.IP, err error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return net.IP{}, err
 	}
 	for _, address := range addrs {
 		// check the address type and if it is not a loopback the display it
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+		if ipnet, ok := address.(*net.IPNet); ok {
 			if ipnet.IP.To4() != nil {
-				return ipnet.IP, nil
+				ip = ipnet.IP
+				if !ipnet.IP.IsLoopback() {
+					return ipnet.IP, nil
+				}
 			}
 		}
 	}
-	return net.IP{}, fmt.Errorf("no external interface found")
+	err = fmt.Errorf("no external interface found")
+	return
 }
