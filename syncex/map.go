@@ -20,7 +20,10 @@ func MakeMap[K comparable, V any]() Map[K, V] {
 // The ok result indicates whether value was found in the map.
 func (m *Map[K, V]) Load(key K) (value V, ok bool) {
 	v, ok := m.m.Load(key)
-	return v.(V), ok
+	if ok {
+		value = v.(V)
+	}
+	return
 }
 
 // Store sets the value for a key.
@@ -38,14 +41,20 @@ func (m *Map[K, V]) Clear() {
 // The loaded result is true if the value was loaded, false if stored.
 func (m *Map[K, V]) LoadOrStore(key K, value V) (actual V, loaded bool) {
 	v, loaded := m.m.LoadOrStore(key, value)
-	return v.(V), loaded
+	if loaded {
+		value = v.(V)
+	}
+	return
 }
 
 // LoadAndDelete deletes the value for a key, returning the previous value if any.
 // The loaded result reports whether the key was present.
 func (m *Map[K, V]) LoadAndDelete(key K) (value V, loaded bool) {
 	v, loaded := m.m.LoadAndDelete(key)
-	return v.(V), loaded
+	if loaded {
+		value = v.(V)
+	}
+	return
 }
 
 // Delete deletes the value for a key.
@@ -58,7 +67,10 @@ func (m *Map[K, V]) Delete(key K) {
 // The loaded result reports whether the key was present.
 func (m *Map[K, V]) Swap(key K, value V) (previous V, loaded bool) {
 	v, loaded := m.m.Swap(key, value)
-	return v.(V), loaded
+	if loaded {
+		value = v.(V)
+	}
+	return
 }
 
 // CompareAndSwap swaps the old and new values for key
