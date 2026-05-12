@@ -14,6 +14,7 @@ type ListNotifier[T any] struct {
 	list      *List[T]
 	OnAdded   func(v T)
 	OnRemoved func(v T)
+	OnUpdated func()
 }
 
 func (l *List[T]) Subscribe() *ListNotifier[T] {
@@ -33,6 +34,9 @@ func (l *List[T]) Add(v T) {
 		if n.OnAdded != nil {
 			n.OnAdded(v)
 		}
+		if n.OnUpdated != nil {
+			n.OnUpdated()
+		}
 	}
 }
 
@@ -40,6 +44,9 @@ func (l *List[T]) Remove(v T) {
 	for _, n := range l.notifiers {
 		if n.OnRemoved != nil {
 			n.OnRemoved(v)
+		}
+		if n.OnUpdated != nil {
+			n.OnUpdated()
 		}
 	}
 }
